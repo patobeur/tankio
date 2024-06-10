@@ -25,9 +25,8 @@ let itsOk = function (what, fonction, checks, SOCKET = false) {
 	let answer = what + ' : ' + (fonction ? 'ok ' : 'no ')
 	let ele = document.getElementById(what)
 	ele.textContent = answer
-	// console.log(answer)
+	console.log(answer)
 	if (checks === 4 && SOCKET) {
-
 		// STARTER
 		startApp(SOCKET) // exemple
 	}
@@ -35,6 +34,7 @@ let itsOk = function (what, fonction, checks, SOCKET = false) {
 }
 
 let startApp = function (SOCKET) {
+	console.log('_communicate.init(SOCKET)')
 	_communicate.init(SOCKET)
 }
 

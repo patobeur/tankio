@@ -9,13 +9,12 @@ let _communicate = {
 	init: function (SOCKET) {
 		this.socket = SOCKET
 		let newPaquet = {
-			name: 'bob'
+			name: 'vide'
 		}
-		// console.log('send to server', newPaquet)
-		this.socket.emit('helloFromClient', newPaquet)
 		this.socketRun();
-
+		this.socket.emit('helloFromClient', newPaquet)
 	},
+	//-----ON-----------
 	socketRun: function () {
 		this.socket.on("message", (data) => {
 			console.log(`${data}`)
@@ -29,8 +28,7 @@ let _communicate = {
 		})
 
 	},
-	//---------------------
-	//-----SEND------------
+	//-----EMIT-----------
 	sendEnterRoom: function (room) {
 		if (this.nameInput.value != '') {
 			this.socket.emit('enterRoom', {
@@ -41,7 +39,6 @@ let _communicate = {
 			})
 		}
 		// this.msgInput.focus()
-	},
-
+	}
 }
 export { _communicate }
