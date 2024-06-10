@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>BorderLiners</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="/node_modules/three/examples/jsm/libs/ammo.wasm.js"></script>
+		<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
+		<script type="importmap">
+		{
+          "imports": {
+            "three": "/node_modules/three/build/three.module.js",
+            "three/addons/": "/node_modules/three/examples/jsm/"
+          }
+		}
+		</script>
+		<script defer type="module" src="main.js"></script>
+	</head>
+
+	<body>
+		<div id="joincontainer">
+			<div id="ola">Validation</div>
+			<div id="ammo">ammo : NO</div>
+			<div id="io">io : NO</div>
+			<div id="socketIo">socket : NO</div>
+			<div id="three">three : NO</div>
+			<div id="connected">connected : NO</div>
+		</div>
+	</body>
+
+</html>
