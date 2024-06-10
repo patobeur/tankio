@@ -74,13 +74,13 @@ function getLocalIpAddress() {
 // échanges quand on se connect au serveur
 io.on('connection', (socket) => {
 	socketing.init(socket)
-
 	console.log(`A User with id ${socket.id} just CONNECTED`)
 
 	// ON DISCONNECT
 	socket.on('disconnect', () => {
 		console.log(`User with id ${socket.id} just disconnected`);
 	});
+
 	// quand le client dit bonjour au serveur
 	socket.on('helloFromClient', (datas) => {
 		let newPaquet = {
@@ -92,11 +92,7 @@ io.on('connection', (socket) => {
 		console.log(`hello from ${socket.id}`);
 		console.log(newPaquet);
 	});
-
-
-
 });
-
 let socketing = {
 	user: null,
 	users: null,
@@ -105,11 +101,11 @@ let socketing = {
 	init: function (socket) {
 		this.socket = socket
 		// à l'initialisation, le serveur envoi un message au client 
-		this.bonjourClient(`[${_Users.getTime()}][Server] ♥ Welcome to this IO test`)
+		this.sendHelloFromServer(`[${_Users.getTime()}][Server] ♥ Welcome to this IO test`)
 	},
 	// 1er message du serveur au cliennt
-	bonjourClient: function (message) {
-		this.socket.emit('bonjourClient', message,)
+	sendHelloFromServer: function (message) {
+		this.socket.emit('helloFromServer', message,)
 	},
 	// quand le serveur parle au client
 	sendMessageToPlayer: function (message) {

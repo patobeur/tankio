@@ -7,11 +7,15 @@ let _communicate = {
 	rooms: {},
 	activityTimer: false,
 	init: function (SOCKET) {
+
 		this.socket = SOCKET
+
 		let newPaquet = {
 			name: 'vide'
 		}
+
 		this.socketRun();
+
 		this.socket.emit('helloFromClient', newPaquet)
 	},
 	//-----ON-----------
@@ -19,7 +23,7 @@ let _communicate = {
 		this.socket.on("message", (data) => {
 			console.log(`${data}`)
 		})
-		this.socket.on("bonjourClient", (data) => {
+		this.socket.on("helloFromServer", (data) => {
 			console.log(`${data}`)
 			_board.init()
 			_board.buttonConnect.addEventListener('click', () => {
