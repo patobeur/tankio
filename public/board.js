@@ -1,46 +1,56 @@
-
-let _front = {
-	id: new Number(0),
-	createDiv: function (params) {
-		let element = document.createElement(params.tag);
-		if (params.attributes) {
-			for (const key in params.attributes) {
-				if (Object.hasOwnProperty.call(params.attributes, key))
-					element[key] = params.attributes[key];
-				if (params.style) {
-					for (const key2 in params.style) {
-						if (Object.hasOwnProperty.call(params.style, key2))
-							element.style[key2] = params.style[key2];
-					}
-				}
-			}
-		}
-		return element;
-	},
-	addCss(stringcss, styleid) {
-		let style = document.createElement("style");
-		style.textContent = stringcss;
-		style.id = "css_" + styleid;
-		document.getElementsByTagName("head")[0].appendChild(style);
-	},
-	sanitize: function (string) {
-		const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;", "./": "&#x2F;" };
-		const reg = /[&<>"'/]/gi;
-		return string.replace(reg, (match) => map[match]);
-	},
-	rand: (min, max) => { return Math.floor(Math.random() * (max - min + 1) + min); },
-};
+import { _front } from './front.js'
 const _board = {
-	buttonConnect: undefined,
-	joinDiv: document.getElementById('joincontainer'),
+	nameButtonActive: false,
+	nameMinChar: 5,
+	divs: {},
 	init: function () {
-		this.buttonConnect = _front.createDiv({
-			tag: 'div',
-			attributes: { className: 'connect-button', textContent: 'Connect A' },
-			style: { width: 'max-content', borderRadius: '7px' }
-		})
-		this.joinDiv.textContent = '';
-		this.joinDiv.appendChild(this.buttonConnect);
+		this.divs['joinDiv'] = document.getElementById('joincontainer')
+		this.divs['joinDiv'].textContent = '';
+		this.divs['chat'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area', textContent: '' }, style: {} })
+		this.divs['clientContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'client-container', }, style: {} })
+		this.divs['inputMessage'] = _front.createDiv({ tag: 'textarea', attributes: { placeholder: 'message', className: 'message-area', textContent: '' }, style: {} })
+		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name...', className: 'name-area', textContent: '' }, style: {} })
+		this.divs['nameButton'] = _front.createDiv({ tag: 'button', attributes: { className: 'name-button', textContent: 'validate' } })
+		this.divs['sendButton'] = _front.createDiv({ tag: 'button', attributes: { className: 'name-button', textContent: 'send' } })
+
+		this.divs['joinDiv'].appendChild(this.divs['clientContainer']);
+		this.divs['joinDiv'].appendChild(this.divs['chat']);
+
+		this.divs['clientContainer'].appendChild(this.divs['nameInput']);
+	},
+	get_nameInputValue: function () {
+		_front.sanitize(this.divs['nameInput'].value)
+	},
+	//---------------------------------------
+	add_nameButton: function (nameButtonCallback) {
+		console.log('add_nameButton')
+		this.divs['clientContainer'].appendChild(this.divs['nameButton']);
+		this.divs['nameButton'].addEventListener('click', nameButtonCallback, true)
+		this.nameButtonActive = true
+	},
+	add_inputMessage: function (nameButtonCallback) {
+		console.log('add_inputMessage')
+		this.divs['clientContainer'].appendChild(this.divs['inputMessage']);
+		this.divs['clientContainer'].appendChild(this.divs['sendButton']);
+		this.divs['sendButton'].addEventListener('click', nameButtonCallback, true)
+	},
+	remove_nameButton: function (nameButtonCallback) {
+		console.log('remove_nameButton')
+		this.divs['nameButton'].removeEventListener('click', nameButtonCallback, true)
+		this.divs['nameButton'].remove()
+		this.nameButtonActive = false
+	},
+	remove_nameInput: function () {
+		console.log('remove_nameInput')
+		this.divs['nameInput'].remove()
+		this.nameButtonActive = false
+	},
+	//---------------------------------------
+	add_srvMessageToChat: function (paquet, messageCounter) {
+		let cleanMessage = _front.sanitize(paquet.message)
+		let newMessageDiv = _front.createDiv({ tag: 'div', attributes: { className: 'message serveur', textContent: cleanMessage }, style: {} })
+		this.divs['chat'].appendChild(newMessageDiv);
+		console.log(`${messageCounter} ${cleanMessage}`)
 	}
 }
 export { _board }

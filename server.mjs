@@ -1,27 +1,31 @@
 "use strict";
+// import * as THREE from "three";
 import express from 'express';
 import { Server } from 'socket.io';
-import { _socketing } from './server/socketing.js'
 import { _Users } from './server/Users.js'
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
 import cors from 'cors';
 
+import { _socketing } from './server/socketing.js'
+import { _front } from './public/front.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3500;
+const PORTClient = 5500;
 
 const app = express();
 
-
-// Middleware CORS pour permettre les requêtes depuis les origines spécifiques
+// Middleware CORS pour permettre les requêtes depuis des origines spécifiques
 app.use(cors({
 	origin: process.env.NODE_ENV === "production" ? false : [
-		"http://localhost",
-		"http://127.0.0.1",
-		"http://192.168.1.4"
+		// "http://localhost",
+		// "http://127.0.0.1",
+		// "http://192.168.1.7"
 	],
 	methods: ["GET", "POST"]
 }));
@@ -37,9 +41,9 @@ const expressServer = app.listen(PORT, () => {
 	const serveurInfo = getLocalIpAddress();
 	console.log(`________________________________________`);
 	console.log(`listening on port \x1b[31m${PORT}\x1b[0m`);
-	console.log(`LOCAL http://127.0.0.1:\x1b[31m${PORT}\x1b[33m/public/index.html\x1b[0m`);
-	console.log(`${serveurInfo.name} \x1b[33mLAN:\x1b[32m http://${serveurInfo.iface.address}:${PORT}\x1b[0m`);
-	console.log(`\x1b[31mTest:\x1b[34m https://${serveurInfo.iface.address}:${PORT}\x1b[0m`);
+	console.log(`LOCAL http://127.0.0.1:\x1b[31m${PORTClient}\x1b[33m/public/index.html\x1b[0m`);
+	console.log(`${serveurInfo.name} \x1b[33mLAN:\x1b[32m http://${serveurInfo.iface.address}:${PORTClient}/public/index.html\x1b[0m`);
+	// console.log(`\x1b[31mTest:\x1b[34m https://${serveurInfo.iface.address}:${PORTClient}\x1b[0m`);
 	console.log(`________________________________________`);
 });
 
@@ -49,10 +53,11 @@ const io = new Server(expressServer, {
 		// origin: process.env.NODE_ENV === "production" ? false : [
 		// 	"http://localhost",
 		// 	"http://127.0.0.1",
-		// 	"http://192.168.1.4"
+		// 	"http://192.168.1.7"
 		// ]
 		origin: '*', // Vous pouvez restreindre les origines autorisées si nécessaire
-		methods: ['GET', 'POST'],
+		// methods: ['GET', 'POST'],
+		methods: ['POST'],
 		allowedHeaders: ['Content-Type'],
 		credentials: true
 	}
@@ -73,42 +78,42 @@ function getLocalIpAddress() {
 
 // échanges quand on se connect au serveur
 io.on('connection', (socket) => {
-	socketing.init(socket)
 	console.log(`A User with id ${socket.id} just CONNECTED`)
+	_socketing.init(socket)
+	console.log(_Users.users.length + ' on wire !')
 
+	socket.on('message', (datas) => {
+		let user = _Users.getUser(socket.id)
+		let preMessage = `[${_Users.getTime()}][${user.room}][${user.name}]`
+		let postmessage = _front.sanitize(datas.message)
+		let paquet = { message: preMessage + postmessage }
+		socket.emit('message', paquet)
+		// TODO broadcasting
+		console.log('room', user.room)
+		// io.to(user.room).emit('message', paquet)
+		// socket.broadcast.to(user.room).emit('message', paquet)
+	});
+	// quand le client répond au bonjour du serveur envoyé dans _socketing.init
+	socket.on('bonjourFromClient', (datas) => {
+		let paquet = _Users.getUser(socket.id)
+		console.log(`hello from ${paquet.id}`);
+		console.log(`hello from ${datas.message}`);
+	});
+	// quand le client répond au bonjour du serveur
+	socket.on('myNameIs', (datas) => {
+		let user = _Users.getUser(socket.id)
+		// TODO validation of name 
+		let name = _front.sanitize(datas.name)
+		// update name in user
+		user.name = name
+		// valider chez le client
+		socket.emit('ficheClient', { datas: user })
+	});
 	// ON DISCONNECT
 	socket.on('disconnect', () => {
-		console.log(`User with id ${socket.id} just disconnected`);
-	});
-
-	// quand le client dit bonjour au serveur
-	socket.on('helloFromClient', (datas) => {
-		let newPaquet = {
-			name: datas.name,
-			id: socket.id,
-			pos: { x: 0, y: 0, z: 0 },
-			other: { x: 1 }
-		}
-		console.log(`hello from ${socket.id}`);
-		console.log(newPaquet);
+		let oldId = socket.id
+		_Users.userLeavesApp(oldId)
+		console.log(`User with id ${oldId} just disconnected`);
+		console.log(_Users.users.length + ' on wire !')
 	});
 });
-let socketing = {
-	user: null,
-	users: null,
-	prevRoom: false,
-	socket: false,
-	init: function (socket) {
-		this.socket = socket
-		// à l'initialisation, le serveur envoi un message au client 
-		this.sendHelloFromServer(`[${_Users.getTime()}][Server] ♥ Welcome to this IO test`)
-	},
-	// 1er message du serveur au cliennt
-	sendHelloFromServer: function (message) {
-		this.socket.emit('helloFromServer', message,)
-	},
-	// quand le serveur parle au client
-	sendMessageToPlayer: function (message) {
-		this.socket.emit('message', message,)
-	},
-}
