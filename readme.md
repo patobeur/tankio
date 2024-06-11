@@ -84,6 +84,6 @@ server.mjs
 
 ### AmmoJs's npm not work properly so *public/index.html*
 
-i use node_modules/three/examples/jsm/libs/ammo.wasm.js
+i use *node_modules_ammo*/three/examples/jsm/libs/ammo.wasm.js
 
 *feel free to make it work !* 
