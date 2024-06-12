@@ -76,44 +76,9 @@ function getLocalIpAddress() {
 	return '0.0.0.0';
 }
 
-// échanges quand on se connect au serveur
+// quand on se connect au serveur
 io.on('connection', (socket) => {
 	console.log(`A User with id ${socket.id} just CONNECTED`)
-	_socketing.init(socket)
+	_socketing.init(socket, io)
 	console.log(_Users.users.length + ' on wire !')
-
-	socket.on('message', (datas) => {
-		let user = _Users.getUser(socket.id)
-		let preMessage = `[${_Users.getTime()}][${user.room}][${user.name}]`
-		let postmessage = _front.sanitize(datas.message)
-		let paquet = { message: preMessage + postmessage }
-		socket.emit('message', paquet)
-		// TODO broadcasting
-		console.log('room', user.room)
-		// io.to(user.room).emit('message', paquet)
-		// socket.broadcast.to(user.room).emit('message', paquet)
-	});
-	// quand le client répond au bonjour du serveur envoyé dans _socketing.init
-	socket.on('bonjourFromClient', (datas) => {
-		let paquet = _Users.getUser(socket.id)
-		console.log(`hello from ${paquet.id}`);
-		console.log(`hello from ${datas.message}`);
-	});
-	// quand le client répond au bonjour du serveur
-	socket.on('myNameIs', (datas) => {
-		let user = _Users.getUser(socket.id)
-		// TODO validation of name 
-		let name = _front.sanitize(datas.name)
-		// update name in user
-		user.name = name
-		// valider chez le client
-		socket.emit('ficheClient', { datas: user })
-	});
-	// ON DISCONNECT
-	socket.on('disconnect', () => {
-		let oldId = socket.id
-		_Users.userLeavesApp(oldId)
-		console.log(`User with id ${oldId} just disconnected`);
-		console.log(_Users.users.length + ' on wire !')
-	});
 });

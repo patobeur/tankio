@@ -1,24 +1,17 @@
 // Exemple de gestion de l'état des utilisateurs
 export class _Users {
 	static users = [];
-
-	static getTime() {
-		return new Date().toLocaleTimeString();
-	}
-
-	static getUser(id) {
-		// retourne les datas de l'utilisateur avec l'id indiqué
-		return this.users.find(user => user.id === id);
-	}
-
+	static getTime() { return new Date().toLocaleTimeString(); }
+	// retourne les datas de l'utilisateur avec l'id indiqué
+	static getUser(id) { return this.users.find(user => user.id === id); }
+	// retourne les utilisateurs dans la room indiquée
 	static getUsersInRoom(room) {
-		// retourne les utilisateurs dans la room indiquée
 		return this.users.filter(user => user.room === room);
 	}
-
 	static activateUserInNewRoom(id, room) {
-		let user = this.getUser(id)
+		let user = this.getUser(id);
 		user.room = room
+		return user;
 	}
 	// static activateUserInNewRoom(id, name, color, room, datas) {
 	// 	const user = { id, name, color, room, datas };
@@ -28,15 +21,14 @@ export class _Users {
 
 	static activateUser(id) {
 		let name = 'invité'
-		let room = 'général'
+		let room = ''
 		let birth = this.getTime()
-		let prevRoom = ''
 		let datas = {
 			pos: { x: 0, y: 0, z: 0 }
 		}
 		let color = 'FFFFFF'
 
-		const user = { id, name, color, room, prevRoom, birth, datas };
+		const user = { id, name, color, room, birth, datas };
 
 		this.users.push(user);
 		return user;
