@@ -1,16 +1,16 @@
 "use strict";
-// import * as THREE from "three";
 import express from 'express';
 import { Server } from 'socket.io';
-import { _Users } from './server/Users.js'
-
 import path from 'path';
 import { fileURLToPath } from 'url';
-import os from 'os';
+
+import { _getLocalIpAddress, _sanitize } from './scr/serverTools.js';
+import { UsersState } from './scr/usersState.js'
+
+import { _Users } from './trash/Users.js'
 import cors from 'cors';
 
-import { _socketing } from './server/socketing.js'
-import { _front } from './public/front.js';
+// import { _front } from './public/front.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,17 +33,16 @@ app.use(cors({
 
 // Servir les fichiers statiques de public, de server et de node_modules
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'server')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // c'est partis pour le serveur sur le bon PORT et l'ip local detectée
 const expressServer = app.listen(PORT, () => {
-	const serveurInfo = getLocalIpAddress();
+	const serveurInfo = _getLocalIpAddress();
 	console.log(`________________________________________`);
 	console.log(`listening on port \x1b[31m${PORT}\x1b[0m`);
 	console.log(`LOCAL http://127.0.0.1:\x1b[31m${PORTClient}\x1b[33m/public/index.html\x1b[0m`);
 	console.log(`${serveurInfo.name} \x1b[33mLAN:\x1b[32m http://${serveurInfo.iface.address}:${PORTClient}/public/index.html\x1b[0m`);
-	// console.log(`\x1b[31mTest:\x1b[34m https://${serveurInfo.iface.address}:${PORTClient}\x1b[0m`);
+	console.log(`\x1b[31mTest:\x1b[34m https://${serveurInfo.iface.address}:${PORTClient}\x1b[0m`);
 	console.log(`________________________________________`);
 });
 
@@ -62,23 +61,182 @@ const io = new Server(expressServer, {
 		credentials: true
 	}
 });
-// pour choper l'ip en local
-function getLocalIpAddress() {
-	const interfaces = os.networkInterfaces();
-	for (const name of Object.keys(interfaces)) {
-		for (const iface of interfaces[name]) {
-			if ('IPv4' !== iface.family || iface.internal !== false) {
-				continue;
-			}
-			return { name: name, iface: iface };
-		}
-	}
-	return '0.0.0.0';
-}
 
+let _socketing = {
+	user: null,
+	users: null,
+	prevRoom: false,
+	socket: false,
+	init: function (socket) {
+		this.socket = socket
+		this.sendInitToPlayer()
+		this.sendMessageToPlayer(`[${UsersState.getTime()}][Server] Welcome to Tankio`)
+	},
+	sendInitToPlayer: function () {
+		let paquet = {
+			id: this.socket.id,
+			openRooms: ['a', 'b', 'c'], // TODO generate it
+			folders: ['name', 'room'],
+			user: {
+				name: 'invité',
+				room: 'vide'
+			}
+		}
+		this.socket.emit('init', paquet)
+	},
+	sendMessageToPlayer: function (message) {
+		this.socket.emit('message', message,)
+	},
+	leaveRoom: function ({ id, name }) {
+		if (this.prevRoom) {
+
+			this.socket.leave(this.prevRoom)
+			// LE JOUEUR A QUITTÉ LA ROOM
+
+			// message to all user in prevroom
+			io.to(this.prevRoom).emit(
+				'message',
+				`[${UsersState.getTime()}][${this.prevRoom}][Server] ${name} has left the room`
+			)
+
+			this.updatePrevRoomUserList()
+		}
+	},
+	updatePrevRoomUserList: function () {
+		// send new userList for all users in prevroom
+		io.to(this.prevRoom).emit('updateUserList', {
+			users: UsersState.getUsersInRoom(this.prevRoom)
+		})
+	},
+	sendPlayerMessageToRoom: function (paquet) {
+		console.log('message to room recu', paquet)
+		const user = UsersState.getUser(paquet.socketId)
+		if (user && paquet && paquet.name && paquet.room && paquet.message) {
+			let sanmessage = _sanitize(paquet.message)
+			const room = user.room
+			const name = user.name
+			if (name === paquet.name && room === paquet.room) {
+				io.to(room).emit('message', `[${UsersState.getTime()}][${room}][${name}] ${sanmessage}`)
+			}
+		}
+
+	}
+}
 // quand on se connect au serveur
+// io.on('connection', (socket) => {
+// 	console.log(`A User with id ${socket.id} just CONNECTED`)
+// 	_socketing.init(socket, io)
+// 	console.log(_Users.users.length + ' on wire !')
+// });
+
 io.on('connection', (socket) => {
-	console.log(`A User with id ${socket.id} just CONNECTED`)
-	_socketing.init(socket, io)
-	console.log(_Users.users.length + ' on wire !')
-});
+	_socketing.init(socket)
+	console.log(`User ${socket.id} CONNECTED`)
+	// Upon connection - only to user 
+	// socket.on('checkName', ({ name, room }) => {
+
+	// })
+	socket.on('enterRoom', ({ name, couleur, room, datas }) => {
+
+		_socketing.prevRoom = UsersState.getUser(socket.id)?.room
+
+		// leave previous room if prevRoom
+		if (_socketing.prevRoom) _socketing.leaveRoom({ id: socket.id, name: socket.name })
+
+		_socketing.user = UsersState.activateUserInNewRoom(socket.id, name, couleur, room, datas)
+		_socketing.users = UsersState.getUsersInRoom(_socketing.user.room, datas)
+		// join room 
+		socket.join(_socketing.user.room)
+
+		// send Welcome Paquet message
+		socket.emit('welcome', {
+			user: _socketing.user,
+			users: _socketing.users,
+			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] You have joined the ${_socketing.user.room} chat room`
+		})
+
+		// // To everyone else in the room
+		io.to(_socketing.user.room).emit(
+			'message', `[${UsersState.getTime()}][${_socketing.user.room}][${_socketing.user.name}] has joined the room`
+		)
+
+		// Update user list for room 
+		io.to(_socketing.user.room).emit('refreshUsersListInRoom', {
+			users: _socketing.users,
+			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
+		})
+
+		// Update rooms list for everyone 
+		io.emit('refreshRoomsList', {
+			rooms: UsersState.getAllActiveRooms()
+		})
+		// Update rooms list for everyone in the room
+		io.to(_socketing.user.room).emit('addPlayer', {
+			rooms: UsersState.getAllActiveRooms()
+		})
+	})
+
+	// newuserposition
+	socket.on('newuserposition', (data) => {
+		console.log('server send newuserposition', data.name, data.pos)
+		const pos = data.pos;
+		const other = data.other;
+		// const name = data.name;
+		// no check
+		// no verif
+		// nothing
+		UsersState.setUserPos(socket.id, pos);
+		const usersCount = UsersState.getUsersInRoom(_socketing.user.room).length
+
+		if (usersCount > 1) {
+			io.to(_socketing.user.room).emit('updPlayerById', {
+				id: socket.id,
+				pos: pos,
+				other: other
+			})
+		}
+	})
+
+	// When user disconnects - to all others 
+	socket.on('disconnect', () => {
+		const user = UsersState.getUser(socket.id)
+		if (_socketing.prevRoom) _socketing.leaveRoom({ id: socket.id, name: socket.name })
+		UsersState.userLeavesApp(socket.id)
+
+
+		if (user) {
+			io.to(user.room).emit('message', `[${UsersState.getTime()}][${user.room}][${user.name}]  has left the room`)
+
+			io.to(user.room).emit('refreshUsersListInRoom', {
+				users: UsersState.getUsersInRoom(user.room),
+				message: 'test'
+			})
+
+			io.emit('refreshRoomsList', {
+				rooms: UsersState.getAllActiveRooms()
+			})
+		}
+
+		console.log(`User ${socket.id} disconnected`)
+	})
+
+	// Listening for a message event 
+	socket.on('sendPlayerMessageToRoom', (datas) => {
+		datas.socketId = socket.id
+		_socketing.sendPlayerMessageToRoom(datas)
+	})
+
+	// Listen for activity 
+	socket.on('activity', (name) => {
+		const room = UsersState.getUser(socket.id)?.room
+
+		console.log('activity', UsersState.getUser(socket.id))
+		if (room) {
+			const paquet = {
+				name: name,
+				user: UsersState.getUser(socket.id)
+			}
+			socket.broadcast.to(room).emit('activity', paquet)
+		}
+	})
+})
