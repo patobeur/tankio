@@ -1,3 +1,4 @@
+"use strict";
 import { _board, _console, _names, _front } from './board.js'
 let _core = {
 	socket: undefined,
@@ -24,17 +25,19 @@ let _core = {
 			}
 			// le BOUTON SEND MESSAGE TO ROOM
 			this.sendMessageToRoomButtonCallback = () => {
-				let message = _front.sanitize(_board.divs['inputMessage'].value)
-				_board.divs['inputMessage'].value = ''
-				if (message && message != '') {
-					console.log('SEND MESSAGE TO ROOM', message)
+				// TODO
+				let sanitizedmessage = _front.sanitize(_board.divs['inputMessage'].value)
+
+				if (sanitizedmessage && sanitizedmessage != '') {
+					console.log('SEND MESSAGE TO ROOM', sanitizedmessage)
 					let paquet = {
 						name: this.user.name,
-						message: message,
+						message: sanitizedmessage,
 						room: this.user.room
 					}
 					this.socket.emit('sendPlayerMessageToRoom', paquet)
 				}
+				_board.divs['inputMessage'].value = 'OO'
 			}
 			this.nameInputCallback = (event) => {
 				if (event.target.value.length === _board.nameMinChar && _board.roomsActive === false) {
@@ -87,8 +90,10 @@ let _core = {
 	//-----SEND------------
 	sendEnterRoom: function (room) {
 		if (_board.divs['nameInput'].value != '' && _board.divs['nameInput'].value.length >= 5) {
+			// TODO
+			let sanitazedvalue = _front.sanitize(_board.divs['nameInput'].value)
 			this.socket.emit('enterRoom', {
-				name: _front.sanitize(_board.divs['nameInput'].value),
+				name: sanitazedvalue,
 				room: room,
 			})
 			_board.divs['nameInput'].value = ''

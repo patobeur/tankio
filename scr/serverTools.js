@@ -13,8 +13,22 @@ function _getLocalIpAddress() {
 	return '0.0.0.0';
 }
 function _sanitize(string) {
-	const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;", "./": "&#x2F;" };
-	const reg = /[&<>"'/]/gi;
-	return string.replace(reg, (match) => map[match]);
+	const regex = /[^a-zA-Z0-9 ,:'._-]/g;
+	return string.replace(regex, '');
+
+	// // TODO
+	// const map = {
+	// 	"&": "&amp;",
+	// 	"<": "&lt;",
+	// 	">": "&gt;",
+	// 	'"': "&quot;",
+	// 	"'": "&#x27;",
+	// 	"/": "&#x2F;",
+	// 	"`": "&#x60;",
+	// 	"=": "&#x3D;",
+	// 	"-": "&#x2D;"
+	// };
+	// const reg = /[&<>"'/`=-]/g;
+	// return string.replace(reg, (match) => map[match]);
 }
 export { _getLocalIpAddress, _sanitize }

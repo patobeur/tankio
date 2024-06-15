@@ -1,4 +1,4 @@
-
+"use strict";
 const _front = {
 	id: new Number(0),
 	createDiv: function (params) {
@@ -23,10 +23,26 @@ const _front = {
 		style.id = "css_" + styleid;
 		document.getElementsByTagName("head")[0].appendChild(style);
 	},
+	replace: function (string) {
+		// TODO
+		// const map = {
+		// 	"&": "&amp;",
+		// 	"<": "&lt;",
+		// 	">": "&gt;",
+		// 	'"': "&quot;",
+		// 	"'": "&#x27;",
+		// 	"/": "&#x2F;",
+		// 	"`": "&#x60;",
+		// 	"=": "&#x3D;",
+		// 	"-": "&#x2D;"
+		// };
+		// const reg = /[&<>"'/`=-]/g;
+		// return string.replace(reg, (match) => map[match]);
+	},
 	sanitize: function (string) {
-		const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;", "./": "&#x2F;" };
-		const reg = /[&<>"'/]/gi;
-		return string.replace(reg, (match) => map[match]);
+		// TODO
+		const regex = /[^a-zA-Z0-9 ,:'._-]/g;
+		return string.replace(regex, '*');
 	},
 	rand: (min, max) => { return Math.floor(Math.random() * (max - min + 1) + min); },
 };
@@ -41,7 +57,7 @@ const _board = {
 		this.divs['joinDiv'].textContent = '';
 
 		this.divs['chat'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area' }, style: {} })
-		this.divs['logo'] = _front.createDiv({ tag: 'img', attributes: { src: 'tankioChat.png', className: 'chat-logo', }, style: {} })
+		this.divs['logo'] = _front.createDiv({ tag: 'img', attributes: { src: 'assets/tankioChat.png', className: 'chat-logo', }, style: {} })
 		this.divs['clientContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'client-container', }, style: {} })
 		this.divs['senderContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'send-container' }, style: {} })
 
@@ -97,10 +113,6 @@ const _board = {
 		this.divs['sendMessageToRoomButton'].addEventListener('click', sendMessageToRoomButtonCallback, true)
 	},
 
-	get_nameInputValue: function () {
-		_front.sanitize(this.divs['nameInput'].value)
-	},
-
 	nameStyleIfCorect: function (iscorect = false) {
 		iscorect === true
 			? this.divs['nameInput'].classList.remove('bad')
@@ -133,8 +145,9 @@ const _console = {
 					}
 				}
 				if (fullmess != '') {
+					// TODO 
 					fullmess = _front.sanitize(fullmess)
-					console.log('fullmess', fullmess)
+					console.log('---------------------------fullmess', fullmess)
 					this.addLogMessage(fullmess)
 				}
 			}
@@ -149,7 +162,11 @@ const _console = {
 					}
 				}
 				if (mess != '') {
-					this.addLogMessage(_front.sanitize(mess))
+					console.log(mess)
+					// TODO let clean = _front.sanitize(mess)
+					let clean = mess
+					console.log(clean)
+					this.addLogMessage(clean)
 				}
 			}
 		}

@@ -24,7 +24,7 @@ app.use(cors({
 	origin: process.env.NODE_ENV === "production" ? false : [
 		// "http://localhost",
 		// "http://127.0.0.1",
-		// "http://192.168.1.7"
+		"http://192.168.1.4"
 	],
 	methods: ["GET", "POST"]
 }));
@@ -39,9 +39,8 @@ const expressServer = app.listen(PORT, () => {
 	const serveurInfo = _getLocalIpAddress();
 	console.log(`________________________________________`);
 	console.log(`listening on port \x1b[31m${PORT}\x1b[0m`);
-	console.log(`LOCAL http://127.0.0.1:\x1b[31m${PORTClient}\x1b[33m/public/index.html\x1b[0m`);
-	console.log(`${serveurInfo.name} \x1b[33mLAN:\x1b[32m http://${serveurInfo.iface.address}:${PORTClient}/public/index.html\x1b[0m`);
-	console.log(`\x1b[31mTest:\x1b[34m https://${serveurInfo.iface.address}:${PORTClient}\x1b[0m`);
+	// console.log(`LOCAL http://127.0.0.1:\x1b[31m${PORTClient}\x1b[33m/public/index.html\x1b[0m`);
+	console.log(`${serveurInfo.name} \x1b[33mLAN:\x1b[32m http://${serveurInfo.iface.address}:${PORT}\x1b[0m`);
 	console.log(`________________________________________`);
 });
 
@@ -111,7 +110,9 @@ let _socketing = {
 		console.log('message to room recu', paquet)
 		const user = UsersState.getUser(paquet.socketId)
 		if (user && paquet && paquet.name && paquet.room && paquet.message) {
-			let sanmessage = _sanitize(paquet.message)
+			// TODO
+			let sanmessage = 'ok:' + _sanitize(paquet.message)
+			// let sanmessage = paquet.message
 			const room = user.room
 			const name = user.name
 			if (name === paquet.name && room === paquet.room) {
@@ -122,50 +123,48 @@ let _socketing = {
 	}
 }
 // quand on se connect au serveur
-// io.on('connection', (socket) => {
-// 	console.log(`A User with id ${socket.id} just CONNECTED`)
-// 	_socketing.init(socket, io)
-// 	console.log(_Users.users.length + ' on wire !')
-// });
-
 io.on('connection', (socket) => {
 	_socketing.init(socket)
 	console.log(`User ${socket.id} CONNECTED`)
+	console.log(UsersState.users.length + ' on wire !')
 	// Upon connection - only to user 
 	// socket.on('checkName', ({ name, room }) => {
 
 	// })
 	socket.on('enterRoom', ({ name, couleur, room, datas }) => {
 
+		// met la room du user dans prevRoom (vide si vide) si le user existe
 		_socketing.prevRoom = UsersState.getUser(socket.id)?.room
 
 		// leave previous room if prevRoom
 		if (_socketing.prevRoom) _socketing.leaveRoom({ id: socket.id, name: socket.name })
 
+		// defini le joueur en le mettant dans une room
 		_socketing.user = UsersState.activateUserInNewRoom(socket.id, name, couleur, room, datas)
 		_socketing.users = UsersState.getUsersInRoom(_socketing.user.room, datas)
-		// join room 
+
+		// on join la room 
 		socket.join(_socketing.user.room)
 
-		// send Welcome Paquet message
+		// send Welcome Paquet message (je parle dans socket donc au client envoyant la demande)
 		socket.emit('welcome', {
 			user: _socketing.user,
 			users: _socketing.users,
 			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] You have joined the ${_socketing.user.room} chat room`
 		})
 
-		// // To everyone else in the room
+		// To everyone else in the room (je parle dans io donc a tous mais que dans la room du user socket)
 		io.to(_socketing.user.room).emit(
 			'message', `[${UsersState.getTime()}][${_socketing.user.room}][${_socketing.user.name}] has joined the room`
 		)
 
-		// Update user list for room 
+		// idem // Update user list for room 
 		io.to(_socketing.user.room).emit('refreshUsersListInRoom', {
 			users: _socketing.users,
 			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
 		})
 
-		// Update rooms list for everyone 
+		// idem // Update rooms list for everyone 
 		io.emit('refreshRoomsList', {
 			rooms: UsersState.getAllActiveRooms()
 		})
@@ -173,6 +172,7 @@ io.on('connection', (socket) => {
 		io.to(_socketing.user.room).emit('addPlayer', {
 			rooms: UsersState.getAllActiveRooms()
 		})
+		console.log(UsersState.users.length + ' on wire !')
 	})
 
 	// newuserposition

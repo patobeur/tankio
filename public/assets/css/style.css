@@ -134,6 +134,9 @@ body {
 	border-top-left-radius: 9px;
 	border: 1px solid rgb(173, 173, 173);
 	/* margin-bottom: 1rem; */
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
 }
 
 #tankio .chat-area .message {
@@ -141,7 +144,7 @@ body {
 	padding: 5px;
 	margin-bottom: 2px;
 	border-radius: 7px;
-	font-size: 1.2rem;
+	font-size: 1rem;
 }
 
 #tankio .chat-area .message span.new {
@@ -243,7 +246,7 @@ body {
 @media screen and (max-height: 400px) {
 	#tankio {
 		width: 100%;
-		background-image: url(/public/tankioChat.png);
+		background-image: url(/assets/tankioChat.png?1);
 		background-attachment: fixed;
 		background-position: top center;
 		background-size: contain;
