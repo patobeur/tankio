@@ -1,0 +1,307 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	text-decoration: none;
+}
+
+body {
+	margin: 0;
+	overflow: hidden;
+	font-family: Arial, sans-serif;
+	background-color: rgb(34, 18, 114);
+	transition: width .5s ease-in;
+}
+
+#tankio {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	width: 80%;
+	max-width: 100%;
+	left: 50%;
+	transform: translate(-50%);
+	background-color: rgb(255, 255, 228);
+	padding-top: 35px;
+}
+
+/* send-container */
+#tankio .client-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	/* flex-flow: wrap; */
+	align-items: center;
+	/* align-content: stretch; */
+	padding: 10px;
+}
+
+#tankio .client-container .name-input {
+	background-color: rgb(255, 255, 255);
+	padding: 5px;
+	margin-bottom: 2px;
+	border-radius: 7px;
+	color: black;
+	text-align: center;
+	font-size: 1.3rem;
+	margin: 0;
+}
+
+/* #tankio .client-container .name-input:focus{
+	background-color: rgb(255, 255, 255);
+	color: black;
+	text-align: center;
+	font-size: 1.5rem;
+	outline: 2px solid chartreuse;
+	}
+*/
+
+#tankio .client-container .name-input:focus {
+	outline: 2px solid rgb(94, 255, 0);
+}
+
+#tankio .client-container .name-input.bad:focus {
+	outline: 2px solid rgb(255, 145, 0);
+}
+
+#tankio .client-container button.name-button {
+	padding: 5px;
+	font-size: 1.2rem;
+	border-radius: 10px;
+	margin-left: 5px;
+
+}
+
+#tankio .client-container button.name-button:hover {
+	background-color: rgb(94, 255, 0);
+}
+
+/* send-container */
+#tankio .send-container {
+	width: 95%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	/* flex-flow: wrap; */
+	align-items: center;
+	/* align-content: stretch; */
+	/* padding: 10px; */
+	background-color: aliceblue;
+	margin-bottom: 5px;
+}
+
+#tankio .send-container .message-area {
+	width: 100%;
+	height: 50px;
+	min-height: 50px;
+	max-height: 50px;
+	max-width: calc(90vw - 50px);
+	color: black;
+	background-color: rgb(255, 255, 255);
+	/* border-top-left-radius: 9px; */
+	border-bottom-left-radius: 9px;
+	padding: 5px;
+	border: 1px solid rgb(121, 121, 121);
+	font-size: 1.1rem;
+}
+
+#tankio .send-container button.send-button {
+	padding: 5px;
+	font-size: 1.2rem;
+	margin-left: 5px;
+	min-height: 50px;
+	max-height: 50px;
+	margin: 0;
+	/* border-top-right-radius: 9px; */
+	border-bottom-right-radius: 9px;
+	border: 1px solid rgb(121, 121, 121);
+	border-left: none;
+
+}
+
+/* chat area */
+#tankio .chat-area {
+	background-color: rgba(255, 255, 255, 0.726);
+	width: 95%;
+	height: 250px;
+	overflow: hidden;
+	overflow-y: auto;
+	padding: 6px 5px 0 5px;
+	border-top-right-radius: 9px;
+	border-top-left-radius: 9px;
+	border: 1px solid rgb(173, 173, 173);
+	/* margin-bottom: 1rem; */
+}
+
+#tankio .chat-area .message {
+	background-color: rgb(226, 226, 226);
+	padding: 5px;
+	margin-bottom: 2px;
+	border-radius: 7px;
+	font-size: 1.2rem;
+}
+
+#tankio .chat-area .message span.new {
+	background-color: rgb(222, 248, 28);
+}
+
+
+/* MYFOLDER */
+#tankio .rooms {
+	/* position: fixed;
+	top: 0; */
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	padding: 5px;
+	margin-bottom: 2px;
+	border-radius: 7px;
+	font-size: 1.2rem;
+}
+
+#tankio .folders {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	padding: 5px;
+	margin-bottom: 2px;
+	border-radius: 7px;
+	font-size: 1.2rem;
+}
+
+#tankio .rooms .room-item,
+#tankio .folders .folder-item {
+	padding: 5px 10px 7px 10px;
+	line-height: 100%;
+	background-color: #2c9cb3;
+	color: #ffd5d2;
+	margin-right: 2px;
+}
+
+#tankio .rooms .room-item:hover:not(:first-child),
+#tankio .folders .folder-item:hover:not(:first-child) {
+	background-color: #f6ada8;
+	color: #2c9cb3;
+}
+
+#tankio .rooms .room-item:first-child,
+#tankio .folders .folder-item:first-child {
+	border-top-left-radius: 9px;
+	border-bottom-left-radius: 9px;
+}
+
+#tankio .rooms .room-item:last-child,
+#tankio .folders .folder-item:last-child {
+	border-top-right-radius: 9px;
+	border-bottom-right-radius: 9px;
+	margin-right: 0;
+}
+
+/* CHECKS */
+#tankio .check-item {
+	border-radius: 9px;
+	margin-bottom: 9px;
+	background-color: #ffd5d2;
+	color: #2c9cb3;
+	padding: .5rem;
+	border: 2px solid #b3572c;
+	background-color: #fff3d2;
+	color: #802515;
+}
+
+#tankio .check-item.title {
+	background-color: #2c9cb3;
+	color: #ffd5d2;
+}
+
+#tankio .check-item.ok {
+	border: 2px solid #2c9cb3;
+	background-color: #e0ffd2;
+	color: #158035;
+}
+
+#tankio .check-item.reload {
+	border: 2px solid #b3572c;
+	background-color: #ffd2d2;
+	color: #158035;
+}
+
+#tankio .check-item.reload a {
+	color: #158035;
+}
+
+#tankio .check-item.reload a:visited {
+	color: #158035;
+}
+
+
+@media screen and (max-height: 400px) {
+	#tankio {
+		width: 100%;
+		background-image: url(/public/tankioChat.png);
+		background-attachment: fixed;
+		background-position: top center;
+		background-size: contain;
+		background-repeat: no-repeat repeat;
+	}
+
+	#tankio .chat-logo {
+		display: none;
+	}
+
+	#tankio .client-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	#tankio .chat-area {
+		width: 100%;
+		height: max-content;
+		padding: 2px;
+		border-radius: 7px;
+		border: 0;
+		padding: 0;
+		margin: 0;
+	}
+
+	#tankio .folders {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		padding: 0 0 5px 0;
+		margin: 0;
+		border-radius: 7px;
+		font-size: 1rem;
+	}
+
+	#tankio .rooms .room-item:first-child,
+	#tankio .folders .folder-item:first-child {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	#tankio .rooms .room-item:last-child,
+	#tankio .folders .folder-item:last-child {
+		border-top-right-radius: 0;
+	}
+
+	#tankio .send-container {
+		/* margin-bottom: 0px; */
+		height: max-content;
+	}
+}
+
+@media screen and (max-height: 200px) {
+	/* #tankio {
+		margin: 0;
+		padding: 0;
+		padding-top: 35px;
+	} */
+
+
+}
