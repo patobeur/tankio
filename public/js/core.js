@@ -37,7 +37,7 @@ let _core = {
 					}
 					this.socket.emit('sendPlayerMessageToRoom', paquet)
 				}
-				_board.divs['inputMessage'].value = 'OO'
+				_board.divs['inputMessage'].value = ''
 			}
 			this.nameInputCallback = (event) => {
 				if (event.target.value.length === _board.nameMinChar && _board.roomsActive === false) {
@@ -78,7 +78,7 @@ let _core = {
 		})
 
 		// Listen for message send
-		this.socket.on("message", (data) => _console.log(data))
+		this.socket.on("message", (data) => _console.addMultipleMessages(data))
 
 		// en test avant intégration
 		this.socket.on("refreshUsersListInRoom", (paquet) => {

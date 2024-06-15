@@ -123,7 +123,7 @@ const _console = {
 	counter: new Number(0),
 	messages: {},
 	id: new Number(0),
-	log: function () {
+	addMultipleMessages: function (message) {
 		if (arguments.length > 0) {
 			let a = arguments
 			if (a.length > 1) {
@@ -146,9 +146,9 @@ const _console = {
 				}
 				if (fullmess != '') {
 					// TODO 
-					fullmess = _front.sanitize(fullmess)
-					console.log('---------------------------fullmess', fullmess)
-					this.addLogMessage(fullmess)
+					// fullmess = _front.sanitize(fullmess)
+					console.log('---------------------------fullmess1', fullmess)
+					this.addUniqueMessage(fullmess)
 				}
 			}
 			else if (a.length === 1) {
@@ -162,16 +162,15 @@ const _console = {
 					}
 				}
 				if (mess != '') {
-					console.log(mess)
-					// TODO let clean = _front.sanitize(mess)
-					let clean = mess
-					console.log(clean)
-					this.addLogMessage(clean)
+					// TODO 
+					// mess = _front.sanitize(mess)
+					console.log('---------------------------fullmess2', mess)
+					this.addUniqueMessage(mess)
 				}
 			}
 		}
 	},
-	addLogMessage: function (message) {
+	addUniqueMessage: function (message) {
 		let newMess = _front.createDiv({
 			tag: 'div', attributes: {
 				id: 'message_' + this.id,
