@@ -82,9 +82,5 @@ server.mjs
 
 ### CLIENT SIDE -> add your local server ip to *public/main.js* 
     
-    const SOCKET = io(`ws://192.168.1.2:3500`);
-
-### AmmoJs's npm not working properly so *public/index.html*
-
-i use *node_modules_ammo*/three/examples/jsm/libs/ammo.wasm.js
+    const SOCKET = io(`ws://xxx.xxx.xxx.xxx:3500`);
 
