@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import { _getLocalIpAddress, _sanitize } from './scr/serverTools.js';
 import { UsersState } from './scr/usersState.js'
 
-import { _Users } from './trash/Users.js'
 import cors from 'cors';
 
 // import { _front } from './public/front.js';

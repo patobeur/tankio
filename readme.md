@@ -2,6 +2,8 @@
 
 Socket io simple app
 
+![Demo Tankio gif animé](/tankio_demo.gif "Demo Tankio gif").
+
 ## start server
 
     npm install
@@ -82,8 +84,7 @@ server.mjs
     
     const SOCKET = io(`ws://192.168.1.2:3500`);
 
-### AmmoJs's npm not work properly so *public/index.html*
+### AmmoJs's npm not working properly so *public/index.html*
 
 i use *node_modules_ammo*/three/examples/jsm/libs/ammo.wasm.js
 
-*feel free to make it work !* 

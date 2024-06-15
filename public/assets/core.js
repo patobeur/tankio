@@ -25,8 +25,9 @@ let _core = {
 			// le BOUTON SEND MESSAGE TO ROOM
 			this.sendMessageToRoomButtonCallback = () => {
 				let message = _front.sanitize(_board.divs['inputMessage'].value)
+				_board.divs['inputMessage'].value = ''
 				if (message && message != '') {
-					console.log('SEND MESSAGE TO ROOM')
+					console.log('SEND MESSAGE TO ROOM', message)
 					let paquet = {
 						name: this.user.name,
 						message: message,
@@ -90,20 +91,8 @@ let _core = {
 				name: _front.sanitize(_board.divs['nameInput'].value),
 				room: room,
 			})
+			_board.divs['nameInput'].value = ''
 		}
-	},
-	sendPlayerMessageToRoom: function () {
-		if (this.user.name && this.msgInput.value != '' && this.user.room != false) {
-			console.log('----MESSAGE SENDED FROM ---------------', this.user.name)
-			console.log(this.user)
-			this.socket.emit('sendPlayerMessageToRoom', {
-				name: this.user.name,
-				text: this.msgInput.value,
-				room: this.user.room
-			})
-			this.msgInput.value = ""
-			this.msgInput.focus()
-		}
-	},
+	}
 }
 export { _core }
