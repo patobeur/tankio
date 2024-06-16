@@ -1,25 +1,30 @@
 "use strict";
 import { _board, _console, _names, _front } from './board.js'
-let _core = {
+import { _game } from './game.js'
+let _client = {
 	socket: undefined,
 	user: undefined,
 	users: {},
 	rooms: {},
 	activityTimer: false,
 	openRooms: [],
-
 	messageCounter: new Number(0),
-	init: function (datas) {
-		this.socket = datas.socket
+	//-----------------------------------------
+	init: function (paquet) {
+		console.log('_client : ok')
+		this.socket = paquet.socket
 		this.socketRun();
+		this.sendRequestInit();
 	},
-	//-----ON-----------
+	//-----------------------------------------
 	socketRun: function () {
 		// send init
 		this.socket.on("init", (paquet) => {
+			console.log('Acces Granted !')
 			this.openRooms = paquet.openRooms
 			// on clean la page html et on la met a jour
 			_board.init()
+
 			this.enterRoomButtonCallback = (room) => {
 				this.sendEnterRoom(room)
 			}
@@ -29,7 +34,6 @@ let _core = {
 				let sanitizedmessage = _front.sanitize(_board.divs['inputMessage'].value)
 
 				if (sanitizedmessage && sanitizedmessage != '') {
-					console.log('SEND MESSAGE TO ROOM', sanitizedmessage)
 					let paquet = {
 						name: this.user.name,
 						message: sanitizedmessage,
@@ -38,6 +42,12 @@ let _core = {
 					this.socket.emit('sendPlayerMessageToRoom', paquet)
 				}
 				_board.divs['inputMessage'].value = ''
+			}
+			this.onBlurMessageToRoomButtonCallback = (event) => {
+				_game.tchatActive = false;
+			}
+			this.onFocusSendMessageToRoomButtonCallback = (event) => {
+				_game.tchatActive = true;
 			}
 			this.nameInputCallback = (event) => {
 				if (event.target.value.length === _board.nameMinChar && _board.roomsActive === false) {
@@ -48,33 +58,39 @@ let _core = {
 					_board.nameStyleIfCorect(false)
 					_board.remove_Rooms()
 				}
+				if (event.target.value.length > 0) {
+					event.target.value = _front.sanitizeName(event.target.value)
+				}
 			}
 			// quand le nom fait 5 ou plus 
 			_board.divs['nameInput'].addEventListener('input', this.nameInputCallback)
+
+			_board.divs['nameInput'].focus()
 		})
 		// Listen for welcome
 		this.socket.on('welcome', (paquet) => {
 			console.log('welcome recu du serveur')
-			console.log('paquet recu', paquet)
 			console.log('on entre dans la room ' + paquet.user.room)
-			_board.remove_Rooms()
+
 			_board.remove_nameInput(this.nameInputCallback)
-			_board.add_Folders(paquet, this.messageCounter)
+			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback, paquet.user.room)
 			_board.divs['clientContainer'].remove()
 
+			_board.add_Folders(paquet, this.messageCounter)
 
-			_board.add_inputMessage(this.sendMessageToRoomButtonCallback)
-			_board.divs['inputMessage'].focus()
-
+			_board.add_chatArea()
+			_board.divs['inputMessage'].addEventListener('blur', this.onBlurMessageToRoomButtonCallback, false)
+			_board.divs['inputMessage'].addEventListener('focus', this.onFocusSendMessageToRoomButtonCallback, true)
+			// _board.divs['inputMessage'].focus()
+			_board.divs['sendMessageToRoomButton'].addEventListener('click', this.sendMessageToRoomButtonCallback, true)
 
 
 			this.usersOld = {}
 			this.user = paquet.user
 			this.users = paquet.users
-			let log = paquet.message
 
 			// initialization
-			// this.GAME.initPlayer(this.user)
+			// _game.init(this.user, this.users)
 		})
 
 		// Listen for message send
@@ -82,16 +98,18 @@ let _core = {
 
 		// en test avant intégration
 		this.socket.on("refreshUsersListInRoom", (paquet) => {
-			console.log('commande refreshUsersListInRoom recu ', paquet
-			)
+			console.log('commande refreshUsersListInRoom recu ')
 		})
 	},
-	//---------------------
 	//-----SEND------------
+	sendRequestInit: function () {
+		console.log('Requesting Acces !')
+		this.socket.emit('requestAccess', 1)
+	},
 	sendEnterRoom: function (room) {
 		if (_board.divs['nameInput'].value != '' && _board.divs['nameInput'].value.length >= 5) {
 			// TODO
-			let sanitazedvalue = _front.sanitize(_board.divs['nameInput'].value)
+			let sanitazedvalue = _front.sanitizeName(_board.divs['nameInput'].value)
 			this.socket.emit('enterRoom', {
 				name: sanitazedvalue,
 				room: room,
@@ -100,4 +118,4 @@ let _core = {
 		}
 	}
 }
-export { _core }
+export { _client }

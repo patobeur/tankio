@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { _core } from './core.js'
+
+import { _client } from './client.js'
 const serveurIP = '192.168.1.4';
 const serveurPORT = '3500';
 
@@ -25,8 +26,11 @@ let doChecksAndStartApp = function () {
 
 let initIfItsOk = function (what, fonction, checks, SOCKET = false) {
 	checks++
-	let answer = what + ' : ' + (fonction ? 'ok ' : 'no ')
-	let ele = document.getElementById(what)
+	let answer = what + ' : ' + (fonction ? '✔️' : '⚠️')
+	let ele = document.getElementById(what);
+
+	if (fonction) { ele.classList.add('ok') }
+
 	ele.textContent = answer
 	console.log(answer)
 	if (checks === 4 && SOCKET) {
@@ -36,6 +40,21 @@ let initIfItsOk = function (what, fonction, checks, SOCKET = false) {
 }
 
 let startApp = function (SOCKET) {
-	_core.init({ socket: SOCKET })
+	if (SOCKET) {
+		let connectedDiv = document.getElementById('connected');
+		if (SOCKET.connected) {
+			connectedDiv.classList.add('ok')
+			console.log('SOCKET.connected :', SOCKET.connected)
+			// console.log('SOCKET :', SOCKET.id)
+			_client.init({ socket: SOCKET })
+		} else {
+			console.log('SOCKET.connected :', SOCKET.connected)
+			console.log('Désolé ! il vous faut refresh la page !!')
+		}
+
+	} else {
+		console.log('--------- NO SOCKET ---------')
+		console.log('------------------------------')
+	}
 }
 

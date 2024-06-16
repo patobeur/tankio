@@ -1,4 +1,90 @@
 "use strict";
+const _board = {
+	roomsActive: false,
+	roomButtonsActive: false,
+	nameMinChar: 5,
+	divs: {},
+	init: function () {
+
+		this.divs['joinDiv'] = document.getElementById('tankio')
+		this.divs['joinDiv'].textContent = '';
+
+		this.divs['logo'] = _front.createDiv({ tag: 'img', attributes: { src: 'assets/tankioChat.png', className: 'chat-logo', }, style: {} })
+		this.divs['clientContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'client-container', }, style: {} })
+
+		this.divs['joinDiv'].appendChild(this.divs['logo']);
+		this.divs['joinDiv'].appendChild(this.divs['clientContainer']);
+
+		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name...', className: 'name-input bad', textContent: '' }, style: {} })
+
+
+		this.divs['clientContainer'].appendChild(this.divs['nameInput']);
+	},
+	add_Folders: function (paquet) {
+		this.divs['folders'] = _front.createDiv({ tag: 'div', attributes: { className: 'folders', textContent: '' }, style: {} })
+		let user = paquet.user
+		let folders = ['name', 'room']
+		folders.forEach(element => {
+			let folderName = 'folder' + element
+			this.divs[folderName] = _front.createDiv({ tag: 'div', attributes: { className: 'folder-item', textContent: user[element] }, style: {} })
+			this.divs['folders'].appendChild(this.divs[folderName]);
+		});
+		this.divs['joinDiv'].prepend(this.divs['folders']);
+	},
+
+	add_Rooms: function (rooms, enterRoomButtonCallback) {
+		console.log('rooms received :', rooms)
+		this.divs['rooms'] = _front.createDiv({ tag: 'div', attributes: { className: 'rooms', textContent: '' }, style: {} })
+		this.divs['roomtitle'] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: 'Select a room' }, style: {} })
+		rooms.forEach(element => {
+
+			let roomName = 'room' + element
+			this.divs[roomName] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: element }, style: {} })
+
+			this.divs[roomName].addEventListener('click', (event) => { enterRoomButtonCallback(element) })
+
+			this.divs['rooms'].appendChild(this.divs[roomName]);
+
+
+		});
+		this.divs['rooms'].prepend(this.divs['roomtitle']);
+		this.divs['clientContainer'].appendChild(this.divs['rooms']);
+		_board.roomsActive = true
+
+	},
+	remove_Rooms: function () {
+		if (this.divs['rooms']) this.divs['rooms'].remove()
+		_board.roomsActive = false
+	},
+
+	remove_nameInput: function (nameInputCallback) {
+		this.divs['nameInput'].remove()
+	},
+	add_chatArea: function () {
+		this.divs['joinDiv'].classList.add('active')
+		this.divs['chatContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-container' }, style: {} })
+		this.divs['chatArea'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area' }, style: {} })
+		this.divs['chatContainer'].appendChild(this.divs['chatArea']);
+
+		this.divs['senderContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'send-container' }, style: {} })
+		this.divs['inputMessage'] = _front.createDiv({ tag: 'input', attributes: { placeholder: 'message', className: 'message-area', textContent: '' }, style: {} })
+		this.divs['sendMessageToRoomButton'] = _front.createDiv({ tag: 'button', attributes: { className: 'send-button', textContent: 'send' } })
+		this.divs['senderContainer'].appendChild(this.divs['inputMessage']);
+		this.divs['senderContainer'].appendChild(this.divs['sendMessageToRoomButton']);
+
+
+		this.divs['chatContainer'].appendChild(this.divs['senderContainer']);
+
+		this.divs['joinDiv'].appendChild(this.divs['chatContainer']);
+
+	},
+
+	nameStyleIfCorect: function (iscorect = false) {
+		iscorect === true
+			? this.divs['nameInput'].classList.remove('bad')
+			: this.divs['nameInput'].classList.add('bad');
+	},
+}
 const _front = {
 	id: new Number(0),
 	createDiv: function (params) {
@@ -42,83 +128,15 @@ const _front = {
 	sanitize: function (string) {
 		// TODO
 		const regex = /[^a-zA-Z0-9 ,:'._-]/g;
-		return string.replace(regex, '*');
+		return string.replace(regex, '');
+	},
+	sanitizeName: function (string) {
+		// TODO
+		const regex = /[^a-zA-Z0-9]/g;
+		return string.replace(regex, '');
 	},
 	rand: (min, max) => { return Math.floor(Math.random() * (max - min + 1) + min); },
 };
-const _board = {
-	roomsActive: false,
-	roomButtonsActive: false,
-	nameMinChar: 5,
-	divs: {},
-	init: function () {
-
-		this.divs['joinDiv'] = document.getElementById('tankio')
-		this.divs['joinDiv'].textContent = '';
-
-		this.divs['chat'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area' }, style: {} })
-		this.divs['logo'] = _front.createDiv({ tag: 'img', attributes: { src: 'assets/tankioChat.png', className: 'chat-logo', }, style: {} })
-		this.divs['clientContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'client-container', }, style: {} })
-		this.divs['senderContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'send-container' }, style: {} })
-
-		this.divs['joinDiv'].appendChild(this.divs['logo']);
-		this.divs['joinDiv'].appendChild(this.divs['clientContainer']);
-		this.divs['joinDiv'].appendChild(this.divs['chat']);
-		this.divs['joinDiv'].appendChild(this.divs['senderContainer']);
-
-		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name...', className: 'name-input bad', textContent: '' }, style: {} })
-
-		this.divs['inputMessage'] = _front.createDiv({ tag: 'textarea', attributes: { placeholder: 'message', className: 'message-area', textContent: '' }, style: {} })
-		this.divs['sendMessageToRoomButton'] = _front.createDiv({ tag: 'button', attributes: { className: 'send-button', textContent: 'send' } })
-
-		this.divs['clientContainer'].appendChild(this.divs['nameInput']);
-	},
-	add_Folders: function (paquet) {
-		this.divs['folders'] = _front.createDiv({ tag: 'div', attributes: { className: 'folders', textContent: '' }, style: {} })
-		let user = paquet.user
-		let folders = ['name', 'room']
-		folders.forEach(element => {
-			let folderName = 'folder' + element
-			this.divs[folderName] = _front.createDiv({ tag: 'div', attributes: { className: 'folder-item', textContent: user[element] }, style: {} })
-			this.divs['folders'].appendChild(this.divs[folderName]);
-		});
-		this.divs['joinDiv'].prepend(this.divs['folders']);
-	},
-
-	add_Rooms: function (rooms, enterRoomButtonCallback) {
-		this.divs['rooms'] = _front.createDiv({ tag: 'div', attributes: { className: 'rooms', textContent: '' }, style: {} })
-		this.divs['roomtitle'] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: 'Choose a room' }, style: {} })
-		rooms.forEach(element => {
-			let roomName = 'room' + element
-			this.divs[roomName] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: element }, style: {} })
-			this.divs[roomName].addEventListener('click', (event) => { enterRoomButtonCallback(element) })
-			this.divs['rooms'].appendChild(this.divs[roomName]);
-		});
-		this.divs['rooms'].prepend(this.divs['roomtitle']);
-		this.divs['clientContainer'].appendChild(this.divs['rooms']);
-		_board.roomsActive = true
-	},
-	remove_Rooms: function () {
-		if (this.divs['rooms']) this.divs['rooms'].remove()
-		_board.roomsActive = false
-	},
-
-	remove_nameInput: function (nameInputCallback) {
-		this.divs['nameInput'].removeEventListener('click', nameInputCallback, true)
-		this.divs['nameInput'].remove()
-	},
-	add_inputMessage: function (sendMessageToRoomButtonCallback) {
-		this.divs['senderContainer'].appendChild(this.divs['inputMessage']);
-		this.divs['senderContainer'].appendChild(this.divs['sendMessageToRoomButton']);
-		this.divs['sendMessageToRoomButton'].addEventListener('click', sendMessageToRoomButtonCallback, true)
-	},
-
-	nameStyleIfCorect: function (iscorect = false) {
-		iscorect === true
-			? this.divs['nameInput'].classList.remove('bad')
-			: this.divs['nameInput'].classList.add('bad');
-	},
-}
 const _console = {
 	counter: new Number(0),
 	messages: {},
@@ -163,8 +181,7 @@ const _console = {
 				}
 				if (mess != '') {
 					// TODO 
-					// mess = _front.sanitize(mess)
-					console.log('---------------------------fullmess2', mess)
+					mess = _front.sanitize(mess)
 					this.addUniqueMessage(mess)
 				}
 			}
@@ -190,9 +207,9 @@ const _console = {
 		this.messages[this.id] = newMess;
 		this.id++;
 		this.counter++;
-		_board.divs['chat'].appendChild(newMess)
+		_board.divs['chatArea'].appendChild(newMess)
 		// this.scrollerDiv.scroll(0, 10000)
-		_board.divs['chat'].scroll(0, _board.divs['chat'].scrollHeight)
+		_board.divs['chatArea'].scroll(0, _board.divs['chatArea'].scrollHeight)
 	},
 }
 const _names = {

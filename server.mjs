@@ -59,7 +59,19 @@ const io = new Server(expressServer, {
 		credentials: true
 	}
 });
+let rooms = {
+	maxrooms: 3,
+	roomsName: ['a', 'b', 'c'],
+	setOpensRooms: function () {
+		roomsName.forEach(element => {
+			this.openRooms.push(element)
+		});
+	},
+	init: function () {
+		this.setOpensRooms()
+	},
 
+}
 let _socketing = {
 	user: null,
 	users: null,
@@ -67,8 +79,6 @@ let _socketing = {
 	socket: false,
 	init: function (socket) {
 		this.socket = socket
-		this.sendInitToPlayer()
-		this.sendMessageToPlayer(`[${UsersState.getTime()}][Server] Welcome to Tankio`)
 	},
 	sendInitToPlayer: function () {
 		let paquet = {
@@ -81,19 +91,18 @@ let _socketing = {
 			}
 		}
 		this.socket.emit('init', paquet)
+
 	},
 	sendMessageToPlayer: function (message) {
 		this.socket.emit('message', message,)
 	},
 	leaveRoom: function ({ id, name }) {
 		if (this.prevRoom) {
-
 			this.socket.leave(this.prevRoom)
 			// LE JOUEUR A QUITTÉ LA ROOM
 
 			// message to all user in prevroom
-			io.to(this.prevRoom).emit(
-				'message',
+			io.to(this.prevRoom).emit('message',
 				`[${UsersState.getTime()}][${this.prevRoom}][Server] ${name} has left the room`
 			)
 
@@ -107,12 +116,11 @@ let _socketing = {
 		})
 	},
 	sendPlayerMessageToRoom: function (paquet) {
-		console.log('message to room recu', paquet)
 		const user = UsersState.getUser(paquet.socketId)
+		console.log(user.name + 'send message to room ' + user.room, paquet)
 		if (user && paquet && paquet.name && paquet.room && paquet.message) {
 			// TODO
-			let sanmessage = 'ok:' + _sanitize(paquet.message)
-			// let sanmessage = paquet.message
+			let sanmessage = _sanitize(paquet.message)
 			const room = user.room
 			const name = user.name
 			if (name === paquet.name && room === paquet.room) {
@@ -127,10 +135,17 @@ io.on('connection', (socket) => {
 	_socketing.init(socket)
 	console.log(`User ${socket.id} CONNECTED`)
 	console.log(UsersState.users.length + ' on wire !')
+
 	// Upon connection - only to user 
 	// socket.on('checkName', ({ name, room }) => {
-
+	// TODO
 	// })
+
+	socket.on('requestAccess', (value) => {
+		if (value === 1) {
+			_socketing.sendInitToPlayer()
+		}
+	})
 	socket.on('enterRoom', ({ name, couleur, room, datas }) => {
 
 		// met la room du user dans prevRoom (vide si vide) si le user existe

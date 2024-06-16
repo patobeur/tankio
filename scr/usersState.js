@@ -1,3 +1,13 @@
+let _map = {
+	maps: {
+		'one': {
+			w: 100, h: 100
+		}
+	},
+	get_mapDatas: function (name) {
+		return this.maps[name]
+	}
+}
 export const UsersState = {
 	users: [],
 	setUsers: function (newUsersArray) {
@@ -33,14 +43,16 @@ export const UsersState = {
 	},
 	activateUserInNewRoom: function (id, name, couleur, room, modelDatas) {
 		let datas = {
-			pos: { x: 0, y: 0, z: 3 },
 			lastTime: this.getTime(),
 			couleur: Math.random() * 0x000000,
 			conf: modelDatas,
 			status: {
 				falling: false,
 				alive: true,
-			}
+			},
+			pos: { x: 0, y: 0, z: 0 },
+			size: { w: 16, h: 16, d: 0 },
+			map: _map.get_mapDatas('one'),
 		}
 		let birth = this.getDateTime();
 		const user = { id, name, couleur, room, birth, datas }
