@@ -1,6 +1,6 @@
 "use strict";
-import { _board, _console, _names, _front } from './board.js'
-import { _game } from './game.js'
+import { _board, _console, _names, _front, _genererCouleurHex } from './game/board.js'
+import { _game } from './game/game.js'
 let _client = {
 	socket: undefined,
 	user: undefined,
@@ -28,7 +28,13 @@ let _client = {
 			this.enterRoomButtonCallback = (room) => {
 				this.sendEnterRoom(room)
 			}
-			// le BOUTON SEND MESSAGE TO ROOM
+			this.onKeyEnterMessageCallback = (e) => {
+				if (_game.tchatActive) {
+					if (e.code === "Enter" && e.type === "keydown") {
+						this.sendMessageToRoomButtonCallback()
+					}
+				}
+			}
 			this.sendMessageToRoomButtonCallback = () => {
 				// TODO
 				let sanitizedmessage = _front.sanitize(_board.divs['inputMessage'].value)
@@ -50,6 +56,9 @@ let _client = {
 				_game.tchatActive = true;
 			}
 			this.nameInputCallback = (event) => {
+				if (event.target.value.length > 0) {
+					event.target.value = _front.sanitizeName(event.target.value)
+				}
 				if (event.target.value.length === _board.nameMinChar && _board.roomsActive === false) {
 					_board.nameStyleIfCorect(true)
 					_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback)
@@ -58,20 +67,25 @@ let _client = {
 					_board.nameStyleIfCorect(false)
 					_board.remove_Rooms()
 				}
-				if (event.target.value.length > 0) {
-					event.target.value = _front.sanitizeName(event.target.value)
-				}
 			}
 			// quand le nom fait 5 ou plus 
 			_board.divs['nameInput'].addEventListener('input', this.nameInputCallback)
 
 			_board.divs['nameInput'].focus()
 		})
+		// Listen for roomFull
+		this.socket.on('roomFull', (paquet) => {
+			this.openRooms = paquet.openRooms
+			console.log('room full sorry')
+			_board.remove_Rooms()
+			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback)
+
+		})
 		// Listen for welcome
 		this.socket.on('welcome', (paquet) => {
 			console.log('welcome recu du serveur')
 			console.log('on entre dans la room ' + paquet.user.room)
-
+			console.log(paquet)
 			_board.remove_nameInput(this.nameInputCallback)
 			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback, paquet.user.room)
 			_board.divs['clientContainer'].remove()
@@ -79,26 +93,47 @@ let _client = {
 			_board.add_Folders(paquet, this.messageCounter)
 
 			_board.add_chatArea()
-			_board.divs['inputMessage'].addEventListener('blur', this.onBlurMessageToRoomButtonCallback, false)
+			_board.divs['inputMessage'].addEventListener('blur', this.onBlurMessageToRoomButtonCallback, true)
 			_board.divs['inputMessage'].addEventListener('focus', this.onFocusSendMessageToRoomButtonCallback, true)
 			// _board.divs['inputMessage'].focus()
 			_board.divs['sendMessageToRoomButton'].addEventListener('click', this.sendMessageToRoomButtonCallback, true)
 
+			document.addEventListener("keydown", this.onKeyEnterMessageCallback, true);
 
-			this.usersOld = {}
 			this.user = paquet.user
 			this.users = paquet.users
+			this.map = paquet.map
+
+
+			_board.add_roomers({ user: this.user, users: this.users })
+
+
+
+
+
+
+
 
 			// initialization
-			// _game.init(this.user, this.users)
+			_game.init(this.user, this.users, this.map)
 		})
 
 		// Listen for message send
 		this.socket.on("message", (data) => _console.addMultipleMessages(data))
 
+		// Listen refreshActiveRoomsList
+		this.socket.on("refreshActiveRoomsList", (data) => {
+			console.log('new refreshActiveRoomsList', data)
+
+		})
+
 		// en test avant intégration
 		this.socket.on("refreshUsersListInRoom", (paquet) => {
-			console.log('commande refreshUsersListInRoom recu ')
+			console.log('refreshUsersListInRoom recu', paquet)
+			_board.refresh_roomers({ user: this.user, users: paquet.users })
+
+
+
 		})
 	},
 	//-----SEND------------
@@ -113,8 +148,10 @@ let _client = {
 			this.socket.emit('enterRoom', {
 				name: sanitazedvalue,
 				room: room,
+				datas: {
+					color: _genererCouleurHex()
+				}
 			})
-			_board.divs['nameInput'].value = ''
 		}
 	}
 }

@@ -9,7 +9,7 @@ body {
 	margin: 0;
 	overflow: hidden;
 	font-family: Arial, sans-serif;
-	background-color: rgb(34, 18, 114);
+	background-color: rgb(255, 255, 255);
 	transition: width .5s ease-in;
 }
 
@@ -25,7 +25,7 @@ body {
 	max-height: 100%;
 	left: 50%;
 	transform: translate(-50%);
-	background-color: rgb(255, 255, 228);
+	background-color: rgba(255, 255, 255, 0.795);
 	padding: 1rem;
 }
 
@@ -98,6 +98,7 @@ body {
 	margin-bottom: 2px;
 	border-radius: 7px;
 	font-size: 1.2rem;
+	justify-content: center;
 }
 
 #tankio .folders {
@@ -113,27 +114,32 @@ body {
 }
 
 #tankio .rooms .room-item,
+#tankio .roomers .roomers-item,
 #tankio .folders .folder-item {
 	padding: 5px 10px 7px 10px;
 	line-height: 100%;
 	background-color: #2c9cb3;
 	color: #ffd5d2;
 	margin-right: 2px;
+	cursor: pointer;
 }
 
 #tankio .rooms .room-item:hover:not(:first-child),
+#tankio .roomers .roomers-item:hover:not(:first-child),
 #tankio .folders .folder-item:hover:not(:first-child) {
 	background-color: #f6ada8;
 	color: #2c9cb3;
 }
 
 #tankio .rooms .room-item:first-child,
+#tankio .roomers .roomers-item:first-child,
 #tankio .folders .folder-item:first-child {
 	border-top-left-radius: 9px;
 	border-bottom-left-radius: 9px;
 }
 
 #tankio .rooms .room-item:last-child,
+#tankio .roomers .roomers-item:last-child,
 #tankio .folders .folder-item:last-child {
 	border-top-right-radius: 9px;
 	border-bottom-right-radius: 9px;
@@ -223,8 +229,6 @@ body {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
-	flex-flow: nowrap;
-	flex-grow: 1 intial intial;
 	background-color: aliceblue;
 }
 
@@ -244,10 +248,8 @@ body {
 	padding: 5px;
 	font-size: 1.2rem;
 	margin-left: 5px;
-	min-height: 50px;
-	max-height: 50px;
+	height: 50px;
 	margin: 0;
-	/* border-top-right-radius: 9px; */
 	border-bottom-right-radius: 9px;
 	border: 1px solid rgb(121, 121, 121);
 	border-left: none;
@@ -255,14 +257,32 @@ body {
 
 }
 
+
+.roomers {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: max-content;
+	display: flex;
+	flex-direction: row;
+	padding: 5px;
+	margin-bottom: 2px;
+	border-radius: 7px;
+	font-size: 1.2rem;
+	background-color: rgba(0, 0, 0, 0.089);
+}
+
 @media screen and (max-height: 400px) {
-	#tankio {
-		width: 100%;
+	body {
 		background-image: url(/assets/tankioChat.png?1);
 		background-attachment: fixed;
 		background-position: top center;
 		background-size: contain;
 		background-repeat: no-repeat repeat;
+	}
+
+	#tankio {
+		width: 100%;
 	}
 
 	#tankio .chat-container {

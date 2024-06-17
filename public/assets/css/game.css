@@ -1,18 +1,31 @@
 .players-zone {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 80%;
-	height: 80%;
+	top: 5px;
+	right: 5px;
+	width: 50%;
+	height: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	outline: 1px solid rgb(78, 76, 76);
+}
+
+.players-zone .player {
+	position: relative;
+	background-color: rgb(0, 0, 0);
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.players-zone .player {
+.players-zone .player .range-a {
+	width: 200%;
+	height: 200%;
 	position: relative;
-	background-color: rgb(255, 0, 0);
+	background-color: rgb(0, 0, 0);
 	border-radius: 50%;
+	border: 2px dotted black;
 }
 
 .players-zone .map-zone {
@@ -30,4 +43,12 @@
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.players-zone .player-pos {
+	background-color: rgba(0, 0, 0, 0.678);
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	color: white;
 }

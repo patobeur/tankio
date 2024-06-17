@@ -1,6 +1,6 @@
 # socket io 
 
-Socket io simple app
+Socket io simple local lan appsdfqqsdqzd
 
 ![Demo Tankio gif animé](/tankio_demo.gif "Demo Tankio gif").
 

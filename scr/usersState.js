@@ -1,13 +1,3 @@
-let _map = {
-	maps: {
-		'one': {
-			w: 100, h: 100
-		}
-	},
-	get_mapDatas: function (name) {
-		return this.maps[name]
-	}
-}
 export const UsersState = {
 	users: [],
 	setUsers: function (newUsersArray) {
@@ -41,22 +31,25 @@ export const UsersState = {
 			time: this.getTime()
 		}
 	},
-	activateUserInNewRoom: function (id, name, couleur, room, modelDatas) {
+	activateUserInNewRoom: function (id, name, room, clientdatas, map) {
+
 		let datas = {
 			lastTime: this.getTime(),
-			couleur: Math.random() * 0x000000,
-			conf: modelDatas,
+			clientDatas: {
+				color: this.estCouleurHex(clientdatas.color)
+			},
 			status: {
 				falling: false,
 				alive: true,
 			},
-			pos: { x: 0, y: 0, z: 0 },
+			// mapName: map.name,
+			pos: map.spawns[Math.floor(Math.random() * map.spawns.length)],
 			size: { w: 16, h: 16, d: 0 },
-			map: _map.get_mapDatas('one'),
 		}
 		let birth = this.getDateTime();
-		const user = { id, name, couleur, room, birth, datas }
-		console.log('newUserINRoom')
+		let fauxid = this.getDateTime();
+		const user = { id, fauxid, name, room, birth, datas }
+		console.log('newUserINRoom---------------------')
 		console.log(user)
 		this.setUsers([
 			...this.users.filter(user => user.id !== id),
@@ -84,5 +77,19 @@ export const UsersState = {
 	},
 	getAllActiveRooms: function () {
 		return Array.from(new Set(this.users.map(user => user.room)))
+	},
+	genererCouleurHex: function () {
+		let couleur = '#';
+		// Générer chaque composante R, G, B en hexadécimal
+		for (let i = 0; i < 6; i++) {
+			couleur += Math.floor(Math.random() * 16).toString(16); // Génère un chiffre hexadécimal aléatoire (0-15)
+		}
+		return couleur.toUpperCase();
+	},
+	estCouleurHex: function (val) {
+		if (typeof val !== 'string' || !/^#[0-9A-F]{6}$/i.test(val)) {
+			val = this.genererCouleurHex()
+		}
+		return val;
 	}
 }

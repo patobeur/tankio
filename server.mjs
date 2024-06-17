@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 
 import { _getLocalIpAddress, _sanitize } from './scr/serverTools.js';
 import { UsersState } from './scr/usersState.js'
+import { _maps } from './scr/maps.js'
 
 import cors from 'cors';
 
@@ -59,13 +60,29 @@ const io = new Server(expressServer, {
 		credentials: true
 	}
 });
-let rooms = {
+let _rooms = {
 	maxrooms: 3,
+	maxUserPerRooms: 3,
 	roomsName: ['a', 'b', 'c'],
+	openRooms: [],
 	setOpensRooms: function () {
-		roomsName.forEach(element => {
-			this.openRooms.push(element)
-		});
+		this.openRooms = []
+		for (let roomIndex = 0; (roomIndex < this.maxrooms && roomIndex < this.roomsName.length); roomIndex++) {
+			const element = this.roomsName[roomIndex];
+			let usersInRoom = UsersState.getUsersInRoom(element)
+			console.log('usersInRoom:' + element, usersInRoom, usersInRoom.length)
+			if (usersInRoom.length < this.maxUserPerRooms) { this.openRooms.push(element) }
+
+		}
+		// this.roomsName.forEach(element => {
+		// 	let usersInRoom = UsersState.getUsersInRoom(element)
+		// 	console.log('usersInRoom:' + element, usersInRoom, usersInRoom.length)
+		// 	if (usersInRoom.length < this.maxUserPerRooms) { this.openRooms.push(element) }
+		// });
+	},
+	getOpensRooms: function () {
+		this.setOpensRooms()
+		return this.openRooms
 	},
 	init: function () {
 		this.setOpensRooms()
@@ -83,7 +100,7 @@ let _socketing = {
 	sendInitToPlayer: function () {
 		let paquet = {
 			id: this.socket.id,
-			openRooms: ['a', 'b', 'c'], // TODO generate it
+			openRooms: _rooms.getOpensRooms(),//['a', 'b', 'c'], // TODO generate it
 			folders: ['name', 'room'],
 			user: {
 				name: 'invité',
@@ -146,48 +163,67 @@ io.on('connection', (socket) => {
 			_socketing.sendInitToPlayer()
 		}
 	})
-	socket.on('enterRoom', ({ name, couleur, room, datas }) => {
+	socket.on('enterRoom', ({ name, room, clientdatas = {} }) => {
+		console.log('datas:', clientdatas)
+		let usersInRoomCount = UsersState.getUsersInRoom(room).length
+		console.log('usersInRoomCount', usersInRoomCount)
+		if (usersInRoomCount < _rooms.maxUserPerRooms) {
 
-		// met la room du user dans prevRoom (vide si vide) si le user existe
-		_socketing.prevRoom = UsersState.getUser(socket.id)?.room
+			// MAP 
+			let map = _maps.get_mapDatas('one')
 
-		// leave previous room if prevRoom
-		if (_socketing.prevRoom) _socketing.leaveRoom({ id: socket.id, name: socket.name })
+			// met la room du user dans prevRoom (vide si vide) si le user existe
+			_socketing.prevRoom = UsersState.getUser(socket.id)?.room
 
-		// defini le joueur en le mettant dans une room
-		_socketing.user = UsersState.activateUserInNewRoom(socket.id, name, couleur, room, datas)
-		_socketing.users = UsersState.getUsersInRoom(_socketing.user.room, datas)
+			// leave previous room if prevRoom
+			if (_socketing.prevRoom) _socketing.leaveRoom({ id: socket.id, name: socket.name })
 
-		// on join la room 
-		socket.join(_socketing.user.room)
+			// defini le joueur en le mettant dans une room
+			_socketing.user = UsersState.activateUserInNewRoom(socket.id, name, room, clientdatas, map)
+			_socketing.users = UsersState.getUsersInRoom(_socketing.user.room)
 
-		// send Welcome Paquet message (je parle dans socket donc au client envoyant la demande)
-		socket.emit('welcome', {
-			user: _socketing.user,
-			users: _socketing.users,
-			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] You have joined the ${_socketing.user.room} chat room`
-		})
+			// on join la room 
+			socket.join(_socketing.user.room)
 
-		// To everyone else in the room (je parle dans io donc a tous mais que dans la room du user socket)
-		io.to(_socketing.user.room).emit(
-			'message', `[${UsersState.getTime()}][${_socketing.user.room}][${_socketing.user.name}] has joined the room`
-		)
+			// send Welcome Paquet message (je parle dans socket donc au client )
+			socket.emit('welcome', {
+				user: _socketing.user,
+				users: _socketing.users,
+				message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] You have joined the ${_socketing.user.room} chat room`,
+				map: map
+			})
 
-		// idem // Update user list for room 
-		io.to(_socketing.user.room).emit('refreshUsersListInRoom', {
-			users: _socketing.users,
-			message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
-		})
+			// To everyone else in the room (je parle dans io donc a tous mais que dans la room du user socket)
+			io.to(_socketing.user.room).emit(
+				'message', `[${UsersState.getTime()}][${_socketing.user.room}][${_socketing.user.name}] has joined the room`
+			)
 
-		// idem // Update rooms list for everyone 
-		io.emit('refreshRoomsList', {
-			rooms: UsersState.getAllActiveRooms()
-		})
-		// Update rooms list for everyone in the room
-		io.to(_socketing.user.room).emit('addPlayer', {
-			rooms: UsersState.getAllActiveRooms()
-		})
-		console.log(UsersState.users.length + ' on wire !')
+			// idem // Update user list for room 
+			io.to(_socketing.user.room).emit('refreshUsersListInRoom', {
+				user: _socketing.user,
+				users: _socketing.users,
+				message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
+			})
+
+			// idem // Update rooms list for everyone 
+			io.emit('refreshActiveRoomsList', {
+				rooms: UsersState.getAllActiveRooms()
+			})
+			// Update rooms list for everyone in the room
+			io.to(_socketing.user.room).emit('addPlayer', {
+				rooms: UsersState.getAllActiveRooms()
+			})
+			console.log(UsersState.users.length + ' on wire !')
+		}
+		else {
+			io.emit('roomFull', {
+				openRooms: _rooms.getOpensRooms()
+			})
+		}
+
+
+
+
 	})
 
 	// newuserposition
@@ -235,9 +271,9 @@ io.on('connection', (socket) => {
 	})
 
 	// Listening for a message event 
-	socket.on('sendPlayerMessageToRoom', (datas) => {
-		datas.socketId = socket.id
-		_socketing.sendPlayerMessageToRoom(datas)
+	socket.on('sendPlayerMessageToRoom', (paquet) => {
+		paquet.socketId = socket.id
+		_socketing.sendPlayerMessageToRoom(paquet)
 	})
 
 	// Listen for activity 

@@ -6,14 +6,14 @@ const _board = {
 	divs: {},
 	init: function () {
 
-		this.divs['joinDiv'] = document.getElementById('tankio')
-		this.divs['joinDiv'].textContent = '';
+		this.divs['tankioDiv'] = document.getElementById('tankio')
+		this.divs['tankioDiv'].textContent = '';
 
 		this.divs['logo'] = _front.createDiv({ tag: 'img', attributes: { src: 'assets/tankioChat.png', className: 'chat-logo', }, style: {} })
 		this.divs['clientContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'client-container', }, style: {} })
 
-		this.divs['joinDiv'].appendChild(this.divs['logo']);
-		this.divs['joinDiv'].appendChild(this.divs['clientContainer']);
+		this.divs['tankioDiv'].appendChild(this.divs['logo']);
+		this.divs['tankioDiv'].appendChild(this.divs['clientContainer']);
 
 		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name...', className: 'name-input bad', textContent: '' }, style: {} })
 
@@ -29,7 +29,7 @@ const _board = {
 			this.divs[folderName] = _front.createDiv({ tag: 'div', attributes: { className: 'folder-item', textContent: user[element] }, style: {} })
 			this.divs['folders'].appendChild(this.divs[folderName]);
 		});
-		this.divs['joinDiv'].prepend(this.divs['folders']);
+		this.divs['tankioDiv'].prepend(this.divs['folders']);
 	},
 
 	add_Rooms: function (rooms, enterRoomButtonCallback) {
@@ -58,10 +58,11 @@ const _board = {
 	},
 
 	remove_nameInput: function (nameInputCallback) {
+		this.divs['nameInput'].value = ''
 		this.divs['nameInput'].remove()
 	},
 	add_chatArea: function () {
-		this.divs['joinDiv'].classList.add('active')
+		this.divs['tankioDiv'].classList.add('active')
 		this.divs['chatContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-container' }, style: {} })
 		this.divs['chatArea'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area' }, style: {} })
 		this.divs['chatContainer'].appendChild(this.divs['chatArea']);
@@ -75,7 +76,57 @@ const _board = {
 
 		this.divs['chatContainer'].appendChild(this.divs['senderContainer']);
 
-		this.divs['joinDiv'].appendChild(this.divs['chatContainer']);
+		this.divs['tankioDiv'].appendChild(this.divs['chatContainer']);
+
+	},
+	add_roomers: function (paquet) {
+		this.divs['roomers'] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers', textContent: '' }, style: {} })
+		// let users = paquet.users
+		// let user = paquet.user
+
+		// users.forEach(element => {
+		// 	if (element.id != user.id) {
+		// 		console.log('in room', element.name)
+		// 		let roomerName = 'roomer' + element.name
+		// 		this.divs[roomerName] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers-item', textContent: element.name }, style: {} })
+		// 		this.divs['roomers'].appendChild(this.divs[roomerName]);
+		// 	}
+		// });
+		this.divs['tankioDiv'].prepend(this.divs['roomers']);
+	},
+	refresh_roomers: function (paquet) {
+		this.divs['roomers'].textContent = ''
+		console.log('refresh_roomers', paquet)
+		let users = paquet.users
+		let user = paquet.user
+
+		users.forEach(element => {
+			// if (element.id != user.id) {
+			console.log('in room', element.name)
+			let roomerName = 'roomer' + element.name
+			this.divs[roomerName] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers-item', textContent: element.name }, style: {} })
+			this.divs['roomers'].appendChild(this.divs[roomerName]);
+			// }
+		});
+	},
+	add_Users: function () {
+		this.divs['tankioDiv'].classList.add('active')
+		this.divs['chatContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-container' }, style: {} })
+		this.divs['chatArea'] = _front.createDiv({ tag: 'div', attributes: { className: 'chat-area' }, style: {} })
+		this.divs['chatContainer'].appendChild(this.divs['chatArea']);
+
+		this.divs['senderContainer'] = _front.createDiv({ tag: 'div', attributes: { className: 'send-container' }, style: {} })
+
+		this.divs['inputMessage'] = _front.createDiv({ tag: 'input', attributes: { placeholder: 'message', className: 'message-area', textContent: '' }, style: {} })
+
+		this.divs['sendMessageToRoomButton'] = _front.createDiv({ tag: 'button', attributes: { className: 'send-button', textContent: 'send' } })
+		this.divs['senderContainer'].appendChild(this.divs['inputMessage']);
+		this.divs['senderContainer'].appendChild(this.divs['sendMessageToRoomButton']);
+
+
+		this.divs['chatContainer'].appendChild(this.divs['senderContainer']);
+
+		this.divs['tankioDiv'].appendChild(this.divs['chatContainer']);
 
 	},
 
@@ -181,7 +232,6 @@ const _console = {
 				}
 				if (mess != '') {
 					// TODO 
-					mess = _front.sanitize(mess)
 					this.addUniqueMessage(mess)
 				}
 			}
@@ -196,7 +246,8 @@ const _console = {
 		});
 		let newSpan = _front.createDiv({
 			tag: 'span', attributes: {
-				textContent: '[' + (this.counter < 10 ? '0' : '') + this.counter + '] ' + message
+				// textContent: '[' + (this.counter < 10 ? '0' : '') + this.counter + '] ' + message
+				textContent: message
 			}
 		});
 		newSpan.classList.add('new')
@@ -212,6 +263,7 @@ const _console = {
 		_board.divs['chatArea'].scroll(0, _board.divs['chatArea'].scrollHeight)
 	},
 }
+
 const _names = {
 	name: null,
 	lettreParFrequences: [
@@ -245,4 +297,11 @@ const _names = {
 		return firstName
 	}
 };
-export { _board, _console, _names, _front }
+const _genererCouleurHex = function () {
+	let couleur = '#';
+	for (let i = 0; i < 6; i++) {
+		couleur += Math.floor(Math.random() * 16).toString(16); // Génère un chiffre hexadécimal aléatoire (de 0 à 15)
+	}
+	return couleur.toUpperCase();
+}
+export { _board, _console, _names, _front, _genererCouleurHex }
