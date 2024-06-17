@@ -1,6 +1,6 @@
 "use strict";
 import { _board, _console, _names, _front } from './board.js'
-import { _Rectangle } from './rectangle.js'
+import { Rectangle, _checkcollision } from './rectangle.js'
 let _keyboard = {
 	move: { x: 0, y: 0 },
 	actions: { moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, },
@@ -86,6 +86,32 @@ const _game = {
 
 		this.startAnimation()
 	},
+	checkcollision2: function (RectA, RectB) {
+		let RotateA = 10;//parseFloat(RectA.htmlElement.style.transform.replace(/rotate\(|deg\)/g, ''));
+		let RotateB = parseFloat(RectB.htmlElement.style.transform.replace(/rotate\(|deg\)/g, ''));
+
+		console.log(RotateA)
+		RectA.setCorners(RotateA);
+		RectB.setCorners(RotateB);
+		if (RectA.isCollided(RectB)) {
+			console.log('------------Collision detected-------------------')
+			// msgDiv.innerHTML = 'Collision detected!';
+			// msgDiv.setAttribute('style', 'color: #FF0000');
+			return true
+		}
+		else {
+			return false
+			// msgDiv.innerHTML = 'No Collision!';
+			// msgDiv.setAttribute('style', 'color: #000000');
+		}
+	},
+	checkcollision: function () {
+		this.physicBodies.forEach(element => {
+			let colliding = this.checkcollision2(this.userDiv['player'], element)
+			if (colliding) return true
+		});
+		return false
+	},
 	addMapsElement: function () {
 		this.userDiv['playerpos'] = _front.createDiv({ tag: 'div', attributes: { className: 'player-pos', textContent: `x:${this.user.datas.pos.x} y:${this.user.datas.pos.y}` }, style: {} })
 
@@ -123,7 +149,7 @@ const _game = {
 		})
 
 
-		this.userDiv['player'] = new _Rectangle(this.userDiv['player'], this.user.datas.size.w, this.user.datas.size.h, 0, 'player', this.physicBodies.length);
+		this.userDiv['player'] = new Rectangle(this.userDiv['player'], this.user.datas.size.w, this.user.datas.size.h, 0, 'player', this.physicBodies.length);
 		// this.physicBodies.push(this.userDiv['player'])
 
 
@@ -140,13 +166,13 @@ const _game = {
 				let newEle = _front.createDiv({
 					tag: 'div', attributes: { className: 'wall' }, style: {
 						position: 'absolute', outline: '1px solid red',
-						left: element.x + 'px', top: element.y + 'px',
+						left: (element.x - (element.w / 2)) + 'px', top: (element.y - (element.h / 2)) + 'px',
 						width: element.w + 'px', height: element.h + 'px',
 						transform: `rotate(${element.r}deg)`
 					}
 				})
 
-				newEle = new _Rectangle(newEle, element.w, element.h, element.r, 'wall', this.physicBodies.length + 1);
+				newEle = new Rectangle(newEle, element.w, element.h, element.r, 'wall', this.physicBodies.length + 1);
 				this.physicBodies.push(newEle)
 				this.userDiv['map'].appendChild(newEle.htmlElement)
 
@@ -154,6 +180,7 @@ const _game = {
 		}
 
 	},
+
 	checkPlayerPos: function () {
 		let maxX = (this.map.w / 2) // - (_game.user.datas.size.w / 2)
 		let minX = -(this.map.w / 2) // + (_game.user.datas.size.w / 2)
@@ -170,8 +197,9 @@ const _game = {
 		this.user.datas.pos.x += _keyboard.move.x
 
 
+		this.checkcollision()
 
-		this.userDiv['playerpos'].textContent = `x:${this.user.datas.pos.x} y:${this.user.datas.pos.y}`
+		this.userDiv['playerpos'].textContent = `x:${this.user.datas.pos.x + (this.map.w / 2)} y:${this.user.datas.pos.y + (this.map.h / 2)}`
 	},
 	setMapPos: function () {
 		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - (this.map.w / 2) - this.user.datas.pos.x)

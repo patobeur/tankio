@@ -1,4 +1,4 @@
-let _Rectangle = (function () {
+let Rectangle = (function () {
 
 	function sin(x) {
 		return Math.sin(x / 180 * Math.PI);
@@ -63,7 +63,7 @@ let _Rectangle = (function () {
 		var i,
 			j,
 			c = 0
-		nvert = verties.length;
+		let nvert = verties.length;
 		for (i = 0, j = nvert - 1; i < nvert; j = i++) {
 			if (((verties[i].y > testy) != (verties[j].y > testy)) && (testx < (verties[j].x - verties[i].x) * (testy - verties[i].y) / (verties[j].y - verties[i].y) + verties[i].x))
 				c = !c;
@@ -71,12 +71,10 @@ let _Rectangle = (function () {
 		return c;
 	}
 
-	function Rectangle(htmlElement, width, height, angle, name, number) {
+	function Rectangle(htmlElement, width, height, angle) {
 		this.htmlElement = htmlElement;
 		this.width = width;
 		this.height = height;
-		this.name = name + '_' + number
-		this.number = new Number(number)
 		this.setCorners(angle);
 	}
 
@@ -156,4 +154,4 @@ let _checkcollision = function (htmlRectA, htmlRectB) {
 	}
 }
 
-export { _Rectangle, _checkcollision }
+export { Rectangle, _checkcollision }

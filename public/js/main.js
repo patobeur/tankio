@@ -50,6 +50,9 @@ let startApp = function (SOCKET) {
 		} else {
 			console.log('SOCKET.connected :', SOCKET.connected)
 			console.log('Désolé ! il vous faut refresh la page !!')
+			setTimeout(() => {
+				location.reload();
+			}, 1000)
 		}
 
 	} else {

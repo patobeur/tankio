@@ -25,16 +25,16 @@ let _maps = {
 	blocsPerMap: {
 		'one': {
 			invisibleWalls: [
-				{ name: '1', x: 0, y: 0, w: 50, h: 50, r: 45, color: { r: 'ff', g: '00', b: '00' } },
-				{ name: '2', x: 60, y: 0, w: 50, h: 50, r: 75, color: { r: 'ff', g: '00', b: '00' } },
-				{ name: '3', x: 120, y: 0, w: 50, h: 50, r: 85, color: { r: 'ff', g: '00', b: '00' } },
+				{ name: '1', x: 211, y: 340, w: 50, h: 50, r: 0 },
+				{ name: '2', x: 453.5, y: 436, w: 60, h: 40, r: 0 },
+				{ name: '3', x: 438, y: 732, w: 100, h: 60, r: 40 },
 			]
 		},
 		'two': {
 			invisibleWalls: [
-				{ name: '1', x: 0, y: 0, w: 50, h: 50, r: 45, color: { r: 'ff', g: '00', b: '00' } },
-				{ name: '2', x: 60, y: 0, w: 50, h: 50, r: 75, color: { r: 'ff', g: '00', b: '00' } },
-				{ name: '3', x: 120, y: 0, w: 50, h: 50, r: 85, color: { r: 'ff', g: '00', b: '00' } },
+				{ name: '1', x: 0, y: 0, w: 50, h: 50, r: 45 },
+				{ name: '2', x: 60, y: 0, w: 50, h: 50, r: 75 },
+				{ name: '3', x: 120, y: 0, w: 50, h: 50, r: 85 },
 			]
 		}
 	},
