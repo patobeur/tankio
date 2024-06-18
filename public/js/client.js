@@ -25,6 +25,9 @@ let _client = {
 			// on clean la page html et on la met a jour
 			_board.init()
 
+			this.newPlayerPositionCallback = (datas) => {
+				this.socket.emit('newPlayerPosition', datas)
+			}
 			this.enterRoomButtonCallback = (room) => {
 				this.sendEnterRoom(room)
 			}
@@ -83,9 +86,7 @@ let _client = {
 		})
 		// Listen for welcome
 		this.socket.on('welcome', (paquet) => {
-			console.log('welcome recu du serveur')
-			console.log('on entre dans la room ' + paquet.user.room)
-			console.log(paquet)
+			console.log('welcome in room :' + paquet.user.room)
 			_board.remove_nameInput(this.nameInputCallback)
 			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback, paquet.user.room)
 			_board.divs['clientContainer'].remove()
@@ -109,13 +110,8 @@ let _client = {
 
 
 
-
-
-
-
-
 			// initialization
-			_game.init(this.user, this.users, this.map)
+			_game.init(this.user, this.users, this.map, this.newPlayerPositionCallback)
 		})
 
 		// Listen for message send
@@ -123,17 +119,22 @@ let _client = {
 
 		// Listen refreshActiveRoomsList
 		this.socket.on("refreshActiveRoomsList", (data) => {
-			console.log('new refreshActiveRoomsList', data)
-
+			console.log('nothing happen refreshActiveRoomsList', data)
+		})
+		// Listen refreshActiveRoomsList
+		this.socket.on("refreshGamePositions", (paquet) => {
+			_game.refresh_roomers({ users: paquet.users })
 		})
 
 		// en test avant intégration
 		this.socket.on("refreshUsersListInRoom", (paquet) => {
-			console.log('refreshUsersListInRoom recu', paquet)
 			_board.refresh_roomers({ user: this.user, users: paquet.users })
+			_game.refresh_roomers({ users: paquet.users })
+		})
+		// en test avant intégration
+		this.socket.on("disconnected", (message) => {
 
-
-
+			location.reload();
 		})
 	},
 	//-----SEND------------

@@ -70,15 +70,9 @@ let _rooms = {
 		for (let roomIndex = 0; (roomIndex < this.maxrooms && roomIndex < this.roomsName.length); roomIndex++) {
 			const element = this.roomsName[roomIndex];
 			let usersInRoom = UsersState.getUsersInRoom(element)
-			console.log('usersInRoom:' + element, usersInRoom, usersInRoom.length)
 			if (usersInRoom.length < this.maxUserPerRooms) { this.openRooms.push(element) }
 
 		}
-		// this.roomsName.forEach(element => {
-		// 	let usersInRoom = UsersState.getUsersInRoom(element)
-		// 	console.log('usersInRoom:' + element, usersInRoom, usersInRoom.length)
-		// 	if (usersInRoom.length < this.maxUserPerRooms) { this.openRooms.push(element) }
-		// });
 	},
 	getOpensRooms: function () {
 		this.setOpensRooms()
@@ -134,7 +128,6 @@ let _socketing = {
 	},
 	sendPlayerMessageToRoom: function (paquet) {
 		const user = UsersState.getUser(paquet.socketId)
-		console.log(user.name + 'send message to room ' + user.room, paquet)
 		if (user && paquet && paquet.name && paquet.room && paquet.message) {
 			// TODO
 			let sanmessage = _sanitize(paquet.message)
@@ -153,20 +146,26 @@ io.on('connection', (socket) => {
 	console.log(`User ${socket.id} CONNECTED`)
 	console.log(UsersState.users.length + ' on wire !')
 
-	// Upon connection - only to user 
-	// socket.on('checkName', ({ name, room }) => {
-	// TODO
-	// })
-
 	socket.on('requestAccess', (value) => {
 		if (value === 1) {
 			_socketing.sendInitToPlayer()
 		}
 	})
+	socket.on('newPlayerPosition', (datas) => {
+		UsersState.setUserPos(socket.id, datas.datas.pos)
+		if (_socketing.user && typeof _socketing.user.room != 'undefined') {
+			_socketing.users = UsersState.getUsersInRoom(_socketing.user.room)
+			io.to(_socketing.user.room).emit('refreshGamePositions', {
+				users: _socketing.users,
+			})
+		}
+		else {
+			console.log('joueur sans room', socket.id)
+			socket.emit('disconnected', 'serveur reboot')
+		}
+	})
 	socket.on('enterRoom', ({ name, room, clientdatas = {} }) => {
-		console.log('datas:', clientdatas)
 		let usersInRoomCount = UsersState.getUsersInRoom(room).length
-		console.log('usersInRoomCount', usersInRoomCount)
 		if (usersInRoomCount < _rooms.maxUserPerRooms) {
 
 			// MAP 
@@ -228,7 +227,6 @@ io.on('connection', (socket) => {
 
 	// newuserposition
 	socket.on('newuserposition', (data) => {
-		console.log('server send newuserposition', data.name, data.pos)
 		const pos = data.pos;
 		const other = data.other;
 		// const name = data.name;
@@ -276,17 +274,17 @@ io.on('connection', (socket) => {
 		_socketing.sendPlayerMessageToRoom(paquet)
 	})
 
-	// Listen for activity 
-	socket.on('activity', (name) => {
-		const room = UsersState.getUser(socket.id)?.room
+	// // Listen for activity 
+	// socket.on('activity', (name) => {
+	// 	const room = UsersState.getUser(socket.id)?.room
 
-		console.log('activity', UsersState.getUser(socket.id))
-		if (room) {
-			const paquet = {
-				name: name,
-				user: UsersState.getUser(socket.id)
-			}
-			socket.broadcast.to(room).emit('activity', paquet)
-		}
-	})
+	// 	console.log('activity', UsersState.getUser(socket.id))
+	// 	if (room) {
+	// 		const paquet = {
+	// 			name: name,
+	// 			user: UsersState.getUser(socket.id)
+	// 		}
+	// 		socket.broadcast.to(room).emit('activity', paquet)
+	// 	}
+	// })
 })

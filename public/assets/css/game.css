@@ -10,23 +10,6 @@
 	outline: 1px solid rgb(78, 76, 76);
 }
 
-.players-zone .player {
-	position: relative;
-	background-color: rgb(0, 0, 0);
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.players-zone .player .range-a {
-	width: 200%;
-	height: 200%;
-	position: relative;
-	background-color: rgb(0, 0, 0);
-	border-radius: 50%;
-	border: 2px dotted black;
-}
 
 .players-zone .map-zone {
 	position: absolute;
@@ -45,10 +28,34 @@
 	left: 0;
 }
 
+/* .players-zone .map-zone .map .player {
+	position: absolute;
+	background-color: rgb(0, 0, 0);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+} */
+
+.players-zone .map-zone .map .player .range-a {
+	width: 200%;
+	height: 200%;
+	position: relative;
+	background-color: rgb(0, 0, 0);
+	border-radius: 50%;
+	border: 2px dotted black;
+}
+
 .players-zone .player-pos {
 	background-color: rgba(0, 0, 0, 0.678);
 	position: absolute;
 	left: 0;
 	bottom: 0;
 	color: white;
+}
+
+.players-zone .wall {
+	background-color: rgba(173, 173, 173, 0.651);
+	border: 3px dotted black;
+	border-radius: 7px;
 }

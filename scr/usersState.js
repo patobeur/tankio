@@ -32,7 +32,6 @@ export const UsersState = {
 		}
 	},
 	activateUserInNewRoom: function (id, name, room, clientdatas, map) {
-
 		let datas = {
 			lastTime: this.getTime(),
 			clientDatas: {
@@ -49,8 +48,6 @@ export const UsersState = {
 		let birth = this.getDateTime();
 		let fauxid = this.getDateTime();
 		const user = { id, fauxid, name, room, birth, datas }
-		console.log('newUserINRoom---------------------')
-		console.log(user)
 		this.setUsers([
 			...this.users.filter(user => user.id !== id),
 			user
@@ -64,7 +61,9 @@ export const UsersState = {
 	},
 	setUserPos: function (id, pos) {
 		let user = this.users.find(user => user.id === id)
-		user.datas.pos = pos
+		if (user) {
+			user.datas.pos = pos
+		}
 	},
 	getUser: function (id) {
 		return this.users.find(user => user.id === id)

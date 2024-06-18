@@ -96,15 +96,12 @@ const _board = {
 	},
 	refresh_roomers: function (paquet) {
 		this.divs['roomers'].textContent = ''
-		console.log('refresh_roomers', paquet)
 		let users = paquet.users
-		let user = paquet.user
 
 		users.forEach(element => {
 			// if (element.id != user.id) {
-			console.log('in room', element.name)
 			let roomerName = 'roomer' + element.name
-			this.divs[roomerName] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers-item', textContent: element.name }, style: {} })
+			this.divs[roomerName] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers-item', title: element.name, textContent: element.name }, style: {} })
 			this.divs['roomers'].appendChild(this.divs[roomerName]);
 			// }
 		});
