@@ -1,6 +1,6 @@
 # socket io 
 
-Socket io simple local lan appsdfqqsdqzd
+Socket io simple local lan app
 
 ![Demo Tankio gif animé](/tankio_demo2.gif "Demo Tankio gif").
 
@@ -10,6 +10,8 @@ Socket io simple local lan appsdfqqsdqzd
     npm start or npm run dev (for nodemon)
 
     open index.html with "Live Server" for client
+	
+	or open client in your browser http://192.168.xxx.xxx:3500 with your ip
 
 ## bugs
 
