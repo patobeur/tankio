@@ -71,12 +71,12 @@ const _game = {
 	userDiv: {},
 	usersDiv: {},
 	tchatActive: false,
-	physicBodies: [],
+	physicBodies: [],// pour bientot
+	OldUsersIndex: {},
 	init: function (user, users, map, newPlayerPositionCallback, testsDevDatas) {
 		console.log('user:', user)
 		console.log('users:', users)
 		console.log('map:', map)
-		console.log('newPlayerPositionCallback:', newPlayerPositionCallback)
 		console.log('testsDevDatas:', testsDevDatas)
 		this.newPlayerPositionCallback = newPlayerPositionCallback;
 		this.user = user;
@@ -97,60 +97,52 @@ const _game = {
 	},
 	refresh_roomers: function (paquet) {
 		this.users = paquet.users
-		let freshOnlineId = {}
+		let NewUsersIndex = {}
+
 		if (this.users.length > 1) {
-
-
-
-			this.users.forEach(oUser => {
-				if (this.user.id != oUser.id) { // si ce n'est pas nous !!
-					if (typeof this.usersDiv[oUser.id] === 'undefined') { // si il n'existe pas !
-
-						console.log('addOtherPlayersElement:', oUser)
-
-						this.usersDiv[oUser.id] = _front.createDiv({
-							tag: 'div', attributes: { className: 'mates', title: oUser.name },
+			this.users.forEach(user => {
+				if (this.user.id != user.id) { // si ce n'est pas nous !!
+					if (typeof this.usersDiv[user.id] === 'undefined') { // si il n'existe pas !
+						console.log('addOtherPlayersElement:', user)
+						this.usersDiv[user.id] = _front.createDiv({
+							tag: 'div', attributes: { className: 'mates', title: user.name },
 							style: {
-								left: ((this.map.w / 2) + oUser.datas.pos.x - (oUser.datas.size.w / 2)) + 'px',
-								top: ((this.map.h / 2) + oUser.datas.pos.y - (oUser.datas.size.h / 2)) + 'px',
+								left: ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px',
+								top: ((this.map.h / 2) + user.datas.pos.y - (user.datas.size.h / 2)) + 'px',
 								position: 'absolute',
 								borderRadius: '50%',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
-								backgroundColor: oUser.datas.clientDatas.color,
-								width: oUser.datas.size.w + 'px', height: oUser.datas.size.h + 'px'
+								backgroundColor: user.datas.clientDatas.color,
+								width: user.datas.size.w + 'px',
+								height: user.datas.size.h + 'px'
 							}
 						})
-						this.userDiv['map'].appendChild(this.usersDiv[oUser.id])
-						freshOnlineId[oUser.id] = oUser
-
+						this.userDiv['map'].appendChild(this.usersDiv[user.id])
 					}
 					else {// allready existe !
-						this.usersDiv[oUser.id].style.left = ((this.map.w / 2) + oUser.datas.pos.x - (oUser.datas.size.w / 2)) + 'px'
-						this.usersDiv[oUser.id].style.top = ((this.map.h / 2) + oUser.datas.pos.y - (oUser.datas.size.h / 2)) + 'px'
+						this.usersDiv[user.id].style.left = ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px'
+						this.usersDiv[user.id].style.top = ((this.map.h / 2) + user.datas.pos.y - (user.datas.size.h / 2)) + 'px'
 					}
+					NewUsersIndex[user.id] = user.id
 				}
 			});
 
-			// for (const key in this.usersDiv) {
-			// 	const element = this.usersDiv[key];
-			// 	console.log('actual:', element)
 
-			// 	console.log('this.users[key]:', key)
-			// 	// TODO 				// TODO
-			// 	// TODO 				// TODO
-			// 	// TODO 				// TODO
-			// 	if (typeof freshOnlineId[key] === 'undefined') {
-			// 		this.usersDiv[key].textContent = '☠️'
-			// 		this.usersDiv[key].backgroundColor = 'none'
-			// 		this.usersDiv[key].classList.add('outline')
-			// 	}
-
-
-
-			// }
 		}
+		for (const id in this.OldUsersIndex) {
+			console.log(this.usersDiv[id])
+			if (typeof NewUsersIndex[id] === 'undefined') {
+				this.usersDiv[id].textContent = '☠️'
+				this.usersDiv[id].backgroundColor = 'none'
+				this.usersDiv[id].classList.add('disconnected')
+				setInterval(() => {
+					this.usersDiv[id].remove()
+				}, 10000)
+			}
+		}
+		this.OldUsersIndex = NewUsersIndex
 
 	},
 	addMapsElement: function () {
@@ -187,16 +179,31 @@ const _game = {
 			style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
 				left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
 				top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
-				position: 'absolute',
-				borderRadius: '50%',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
+				// position: 'absolute',
+				// borderRadius: '50%',
+				// display: 'flex',
+				// alignItems: 'center',
+				// justifyContent: 'center',
+				// backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
 				width: this.user.datas.size.w + 'px',
 				height: this.user.datas.size.h + 'px'
 			} : {}
 		})
+		this.userDiv['playerChar'] = _front.createDiv({
+			tag: 'div', attributes: { className: 'player-charactere' },
+			style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
+				// position: 'relative',
+				// borderRadius: '50%',
+				// border: '1px dotted black',
+				// display: 'flex',
+				// alignItems: 'center',
+				// justifyContent: 'center',
+				// backgroundColor: '#FFFFFF50',
+				// width: (2 * (this.user.datas.size.w)) + 'px',
+				// height: (2 * (this.user.datas.size.h)) + 'px'
+			} : {}
+		})
+		this.userDiv['player'].appendChild(this.userDiv['playerChar'])
 		this.userDiv['map'].appendChild(this.userDiv['player'])
 	},
 	add_BlocsToMap: function () {
@@ -243,7 +250,6 @@ const _game = {
 		this.newPlayerPositionCallback(this.user)
 	},
 	setMapPos: function () {
-
 		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - (this.map.w / 2) - this.user.datas.pos.x)
 		let y = Math.floor((this.userDiv['mapZone'].clientHeight / 2) - (this.map.h / 2) - this.user.datas.pos.y)
 		this.userDiv['map'].style.transform = "translate(" + x + "px," + y + "px)";

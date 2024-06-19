@@ -58,7 +58,7 @@ let startApp = function (SOCKET) {
 			console.log('Désolé ! il vous faut refresh la page !!')
 			setTimeout(() => {
 				location.reload();
-			}, 1000)
+			}, 3000)
 		}
 
 	} else {

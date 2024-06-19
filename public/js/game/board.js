@@ -3,6 +3,7 @@ const _board = {
 	roomsActive: false,
 	roomButtonsActive: false,
 	nameMinChar: 5,
+	nameMaxChar: 12,
 	divs: {},
 	init: function () {
 
@@ -15,10 +16,16 @@ const _board = {
 		this.divs['tankioDiv'].appendChild(this.divs['logo']);
 		this.divs['tankioDiv'].appendChild(this.divs['clientContainer']);
 
-		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name...', className: 'name-input bad', textContent: '' }, style: {} })
+		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name (6letters)...', className: 'name-input bad', textContent: '' }, style: {} })
+		this.divs['nameNeeded'] = _front.createDiv({ tag: 'div', attributes: { className: 'nameneeded', }, style: {} })
+		this.divs['nameNeededItem'] = _front.createDiv({ tag: 'div', attributes: { texteContent: '..qsdqsd.', className: 'nameneeded-item', }, style: {} })
 
 
-		this.divs['clientContainer'].appendChild(this.divs['nameInput']);
+		this.divs['nameNeeded'].appendChild(this.divs['nameNeededItem']);
+		this.divs['nameNeeded'].appendChild(this.divs['nameInput']);
+		this.divs['clientContainer'].appendChild(this.divs['nameNeeded']);
+
+		// this.divs['clientContainer'].appendChild(this.divs['nameInput']);
 	},
 	add_Folders: function (paquet) {
 		this.divs['folders'] = _front.createDiv({ tag: 'div', attributes: { className: 'folders', textContent: '' }, style: {} })
@@ -79,7 +86,7 @@ const _board = {
 		this.divs['tankioDiv'].appendChild(this.divs['chatContainer']);
 
 	},
-	add_roomers: function (paquet) {
+	add_roomers: function () {
 		this.divs['roomers'] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers', textContent: '' }, style: {} })
 		// let users = paquet.users
 		// let user = paquet.user
@@ -126,7 +133,7 @@ const _board = {
 		this.divs['tankioDiv'].appendChild(this.divs['chatContainer']);
 
 	},
-
+	// ---------------------
 	nameStyleIfCorect: function (iscorect = false) {
 		iscorect === true
 			? this.divs['nameInput'].classList.remove('bad')
@@ -260,7 +267,6 @@ const _console = {
 		_board.divs['chatArea'].scroll(0, _board.divs['chatArea'].scrollHeight)
 	},
 }
-
 const _names = {
 	name: null,
 	lettreParFrequences: [

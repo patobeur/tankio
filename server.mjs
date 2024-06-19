@@ -10,8 +10,6 @@ import { _maps } from './scr/maps.js'
 
 import cors from 'cors';
 
-// import { _front } from './public/front.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

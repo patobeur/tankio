@@ -59,17 +59,32 @@ let _client = {
 				_game.tchatActive = true;
 			}
 			this.nameInputCallback = (event) => {
-				if (event.target.value.length > 0) {
+				if (event.target.value.length >= 0) {
 					event.target.value = _front.sanitizeName(event.target.value)
+					let val = (100 / _board.nameMinChar) * event.target.value.length
+					val = val > 100 ? 100 : val;
+					_board.divs['nameNeededItem'].style.width = val + '%'
 				}
-				if (event.target.value.length === _board.nameMinChar && _board.roomsActive === false) {
+				if (event.target.value.length > _board.nameMaxChar) {
+					let trop = event.target.value.length - _board.nameMaxChar
+					trop = trop > _board.nameMinChar ? _board.nameMinChar : trop
+					let val = 100 - ((100 / _board.nameMinChar) * trop)
+					val = val < 0 ? 0 : val;
+					_board.divs['nameNeededItem'].style.width = val + '%'
+				}
+				if (event.target.value.length > _board.nameMaxChar + _board.nameMinChar) {
+					event.target.value = event.target.value.substring(0, event.target.value.length - 1)
+				}
+				if ((event.target.value.length >= _board.nameMinChar || event.target.value.length <= _board.nameMaxChar) && _board.roomsActive === false) {
 					_board.nameStyleIfCorect(true)
 					_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback)
+
 				}
-				if (event.target.value.length < _board.nameMinChar && _board.roomsActive === true) {
+				if ((event.target.value.length < _board.nameMinChar || event.target.value.length > _board.nameMaxChar) && _board.roomsActive === true) {
 					_board.nameStyleIfCorect(false)
 					_board.remove_Rooms()
 				}
+
 			}
 			// quand le nom fait 5 ou plus 
 			_board.divs['nameInput'].addEventListener('input', this.nameInputCallback)
