@@ -2,8 +2,6 @@
 
 Socket io simple local lan app
 
-![Demo Tankio gif animé](/tankio_demo2.gif "Demo Tankio gif").
-
 ## start server
 
     npm install
@@ -66,7 +64,7 @@ server.mjs
 ### CLIENT SIDE -> Front imports 
 
 ```html
-	<script src="/node_modules/three/examples/jsm/libs/ammo.wasm.js"></script>
+	<script src="/node_modules_min/three/examples/jsm/libs/ammo.wasm.js"></script>
 	<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 	<script type="importmap">
 	{
@@ -82,7 +80,13 @@ server.mjs
 - [ ] client need to be standAlone as server
 
 
-### CLIENT SIDE -> add your local server ip to *public/main.js* 
+### CLIENT SIDE -> add your local server ip to *public/js/main.js* 
     
-    const SOCKET = io(`ws://xxx.xxx.xxx.xxx:3500`);
+    import * as THREE from "three";
+	import { _client } from './client.js'
+	const serveurIP = 'xxx.xxx.xxx.xxx';
+	const serveurPORT = '3500';
 
+
+
+![Demo Tankio gif animé](/docs/tankio_demo2.gif "Demo Tankio gif").
