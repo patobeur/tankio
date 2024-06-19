@@ -16,9 +16,15 @@ let doChecksAndStartApp = function () {
 			checks = initIfItsOk('socketIo', SOCKET, checks, SOCKET)
 			if (THREE) {
 				checks = initIfItsOk('three', THREE, checks, SOCKET)
+				// if (Ammo) {
 				Ammo().then(() => {
 					checks = initIfItsOk('ammo', Ammo, checks, SOCKET)
 				});
+				// }
+				// else {
+				// 	console.log('erreur')
+
+				// }
 			}
 		}
 	}

@@ -33,6 +33,7 @@ app.use(cors({
 
 // Servir les fichiers statiques de public, de server et de node_modules
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/node_modules_min', express.static(path.join(__dirname, 'node_modules_min')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // c'est partis pour le serveur sur le bon PORT et l'ip local detectée

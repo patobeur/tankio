@@ -176,7 +176,6 @@
 					return Rectangle;
 				}
 			)();
-
 			function checkcollisionRect(A, B) {
 				A.setCorners(A.angle);
 				B.setCorners(B.angle);
@@ -200,7 +199,7 @@
 			divs['PLAYER'] = _createDiv({
 				tag: 'div',
 				attributes: { id: 'player', className: 'player', textContent: '' },
-				style: { position: 'absolute', backgroundColor: '#FF0000', width: '32px', height: '32px', transform: 'rotate(28.9deg)', top: '140px', left: '250px' }
+				style: { position: 'absolute', borderRadius: '50%', backgroundColor: '#FF0000', width: '32px', height: '32px', transform: 'rotate(28.9deg)', top: '140px', left: '250px' }
 			})
 			divs['wall_1'] = _createDiv({
 				tag: 'div',
@@ -216,6 +215,7 @@
 			cont.appendChild(divs['wall_1'])
 			cont.appendChild(divs['wall_2'])
 			cont.appendChild(divs['PLAYER'])
+
 			document.body.appendChild(cont)
 			document.body.appendChild(msgDiv)
 

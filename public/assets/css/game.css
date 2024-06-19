@@ -10,6 +10,18 @@
 	outline: 1px solid rgb(78, 76, 76);
 }
 
+.players-zone.full {
+	width: calc(100% -10px);
+	height: calc(100% -10px);
+}
+
+.players-zone.medium {
+	top: 20px;
+	right: 20px;
+	width: calc(100% -40px);
+	height: calc(100% -40px);
+}
+
 
 .players-zone .map-zone {
 	position: absolute;

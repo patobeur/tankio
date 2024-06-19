@@ -111,7 +111,7 @@ let _client = {
 
 
 			// initialization
-			_game.init(this.user, this.users, this.map, this.newPlayerPositionCallback)
+			_game.init(this.user, this.users, this.map, this.newPlayerPositionCallback, false)
 		})
 
 		// Listen for message send
