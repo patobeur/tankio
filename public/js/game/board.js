@@ -298,6 +298,13 @@ const _names = {
 			firstName += this.donneUneLettre()
 		}
 		return firstName
+	},
+	getAnId: function (num) {
+		let id = ''
+		for (let i = 0; i < num; i++) {
+			id += String.fromCharCode(65 + Math.floor(Math.random() * 26))
+		}
+		return id
 	}
 };
 const _genererCouleurHex = function () {
