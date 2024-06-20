@@ -109,16 +109,15 @@ const _game = {
 							style: {
 								left: ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px',
 								top: ((this.map.h / 2) + user.datas.pos.y - (user.datas.size.h / 2)) + 'px',
-								position: 'absolute',
-								borderRadius: '50%',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
 								backgroundColor: user.datas.clientDatas.color,
 								width: user.datas.size.w + 'px',
 								height: user.datas.size.h + 'px'
 							}
 						})
+						this.userDiv[user.id + 'Char'] = _front.createDiv({
+							tag: 'div', attributes: { className: 'mates-charactere' }
+						})
+						this.usersDiv[user.id].appendChild(this.userDiv[user.id + 'Char'])
 						this.userDiv['map'].appendChild(this.usersDiv[user.id])
 					}
 					else {// allready existe !
@@ -147,10 +146,7 @@ const _game = {
 	},
 	addMapsElement: function () {
 		this.userDiv['playerpos'] = _front.createDiv({ tag: 'div', attributes: { className: 'player-pos', textContent: `x:${this.user.datas.pos.x} y:${this.user.datas.pos.y}` }, style: {} })
-
-
 		this.userDiv['playersZone'] = _front.createDiv({ tag: 'div', attributes: { className: 'players-zone' }, style: {} })
-
 		this.userDiv['mapZone'] = _front.createDiv({ tag: 'div', attributes: { className: 'map-zone' }, style: {} })
 		this.userDiv['map'] = _front.createDiv({
 			tag: 'div', attributes: { title: this.map.name, className: 'map' }, style: {
@@ -159,16 +155,18 @@ const _game = {
 			}
 		})
 		this.userDiv['mapZone'].appendChild(this.userDiv['map'])
-
-
 		this.userDiv['playersZone'].appendChild(this.userDiv['mapZone'])
 		this.userDiv['playersZone'].appendChild(this.userDiv['playerpos'])
 
+		this.userDiv['resizeMap'] = _front.createDiv({ tag: 'div', attributes: { className: 'resize-map', textContent: `🖥️` }, style: {} })
+		this.userDiv['resizeMap'].addEventListener('click', () => {
+			this.userDiv['playersZone'].classList = "players-zone full"
+			this.setMapPos()
+		})
+		this.userDiv['playersZone'].appendChild(this.userDiv['resizeMap'])
+
 		document.body.appendChild(this.userDiv['playersZone'])
 		this.setMapPos()
-
-
-
 		window.addEventListener("resize", (event) => {
 			this.setMapPos()
 		});
@@ -190,18 +188,7 @@ const _game = {
 			} : {}
 		})
 		this.userDiv['playerChar'] = _front.createDiv({
-			tag: 'div', attributes: { className: 'player-charactere' },
-			style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
-				// position: 'relative',
-				// borderRadius: '50%',
-				// border: '1px dotted black',
-				// display: 'flex',
-				// alignItems: 'center',
-				// justifyContent: 'center',
-				// backgroundColor: '#FFFFFF50',
-				// width: (2 * (this.user.datas.size.w)) + 'px',
-				// height: (2 * (this.user.datas.size.h)) + 'px'
-			} : {}
+			tag: 'div', attributes: { className: 'player-charactere' }
 		})
 		this.userDiv['player'].appendChild(this.userDiv['playerChar'])
 		this.userDiv['map'].appendChild(this.userDiv['player'])
