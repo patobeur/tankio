@@ -44,7 +44,7 @@
 .players-zone .map-zone .map .player {
 
 	position: absolute;
-	border-radius: 50%;
+	/* border-radius: 50%; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -118,8 +118,6 @@
 
 .players-zone .wall {
 	background-color: rgba(173, 173, 173, 0.651);
-	border: 3px dotted black;
-	border-radius: 7px;
 }
 
 .disconnected {

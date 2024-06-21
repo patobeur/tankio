@@ -1,5 +1,6 @@
 "use strict";
 import { _board, _console, _names, _front } from './board.js'
+import { _physics } from './physics.js'
 let _keyboard = {
 	move: { x: 0, y: 0 },
 	actions: { moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, },
@@ -70,6 +71,7 @@ const _game = {
 	start: undefined,
 	userDiv: {},
 	usersDiv: {},
+	blocsDiv: {},
 	tchatActive: false,
 	physicBodies: [],// pour bientot
 	OldUsersIndex: {},
@@ -172,44 +174,49 @@ const _game = {
 		});
 	},
 	addPlayerElement: function () {
-		this.userDiv['player'] = _front.createDiv({
-			tag: 'div', attributes: { className: 'player', title: this.user.name },
-			style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
-				left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
-				top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
-				// position: 'absolute',
-				// borderRadius: '50%',
-				// display: 'flex',
-				// alignItems: 'center',
-				// justifyContent: 'center',
-				// backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
-				width: this.user.datas.size.w + 'px',
-				height: this.user.datas.size.h + 'px'
-			} : {}
-		})
+		this.userDiv['player'] = new _physics.Rectangle(
+			_front.createDiv({
+				tag: 'div', attributes: { className: 'player', title: this.user.name },
+				style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
+					left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
+					top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
+					// position: 'absolute',
+					// borderRadius: '50%',
+					// display: 'flex',
+					// alignItems: 'center',
+					// justifyContent: 'center',
+					// backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
+					width: this.user.datas.size.w + 'px',
+					height: this.user.datas.size.h + 'px'
+				} : {}
+			}),
+			false
+		);
 		this.userDiv['playerChar'] = _front.createDiv({
 			tag: 'div', attributes: { className: 'player-charactere' }
 		})
-		this.userDiv['player'].appendChild(this.userDiv['playerChar'])
-		this.userDiv['map'].appendChild(this.userDiv['player'])
+		this.userDiv['player'].htmlElement.appendChild(this.userDiv['playerChar'])
+		this.userDiv['map'].appendChild(this.userDiv['player'].htmlElement)
 	},
 	add_BlocsToMap: function () {
 		if (this.map.blocs && this.map.blocs.invisibleWalls) {
 			this.map.blocs.invisibleWalls.forEach(element => {
-				let newBloc = _front.createDiv({
+				let newBloc = new _physics.Rectangle(_front.createDiv({
 					tag: 'div', attributes: { className: 'wall' }, style: {
 						position: 'absolute', outline: '1px solid red',
 						left: (element.x - (element.w / 2)) + 'px', top: (element.y - (element.h / 2)) + 'px',
 						width: element.w + 'px', height: element.h + 'px',
 						transform: `rotate(${element.r}deg)`
 					}
-				})
-				// newBloc = new Rectangle(newBloc);
-				// this.physicBodies.push(newBloc)
-				// this.userDiv['map'].appendChild(newBloc.htmlElement)
-				this.userDiv['map'].appendChild(newBloc)
+				}), true)
+
+				console.log('newBloc', newBloc, newBloc.htmlElement.dataId)
+				this.blocsDiv[newBloc.htmlElement.dataId] = newBloc
+				this.userDiv['map'].appendChild(newBloc.htmlElement)
 			});
 		}
+		console.log('this.blocsDiv', this.blocsDiv)
+		console.log('_physics.physicBodies', _physics.physicBodies)
 	},
 	checkPlayerPos: function () {
 		let maxX = (this.map.w / 2) // - (_game.user.datas.size.w / 2)
@@ -229,12 +236,24 @@ const _game = {
 		let px = (this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)
 		let py = (this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)
 
-		this.userDiv['player'].style.left = px + "px"
-		this.userDiv['player'].style.top = py + "px"
+		this.userDiv['player'].htmlElement.style.left = px + "px"
+		this.userDiv['player'].htmlElement.style.top = py + "px"
 
 		this.userDiv['playerpos'].textContent = `x:${this.user.datas.pos.x + (this.map.w / 2)} y:${this.user.datas.pos.y + (this.map.h / 2)}`
 
 		this.newPlayerPositionCallback(this.user)
+	},
+	checkcollisionCallback: (element) => {
+		element.htmlElement.style.transform = 'rotate(' + (element.angle += 1) + 'deg)';
+	},
+	checkCollision: function () {
+		let collisions = 0
+		console.log('_physics.physicBodies', _physics.physicBodies)
+		_physics.physicBodies.forEach(element => {
+			if (_physics.checkcollisionRect(this.userDiv['player'], element, this.checkcollisionCallback)) collisions++
+		});
+		// console.log('coolliding', collisions)
+
 	},
 	setMapPos: function () {
 		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - (this.map.w / 2) - this.user.datas.pos.x)
@@ -248,6 +267,7 @@ const _game = {
 					this.checkPlayerPos()
 					this.setMapPos()
 				}
+				this.checkCollision()
 			},
 			15
 		)

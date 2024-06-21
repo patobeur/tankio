@@ -75,11 +75,12 @@ let _client = {
 				if (event.target.value.length > _board.nameMaxChar + _board.nameMinChar) {
 					event.target.value = event.target.value.substring(0, event.target.value.length - 1)
 				}
+				console.log('_board.roomsActive1', _board.roomsActive)
 				if ((event.target.value.length >= _board.nameMinChar || event.target.value.length <= _board.nameMaxChar) && _board.roomsActive === false) {
 					_board.nameStyleIfCorect(true)
 					_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback)
-
 				}
+				console.log('_board.roomsActive2', _board.roomsActive)
 				if ((event.target.value.length < _board.nameMinChar || event.target.value.length > _board.nameMaxChar) && _board.roomsActive === true) {
 					_board.nameStyleIfCorect(false)
 					_board.remove_Rooms()

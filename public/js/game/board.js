@@ -56,12 +56,15 @@ const _board = {
 		});
 		this.divs['rooms'].prepend(this.divs['roomtitle']);
 		this.divs['clientContainer'].appendChild(this.divs['rooms']);
-		_board.roomsActive = true
+		this.roomsActive = true
+		console.log('_board.roomsActive', _board.roomsActive)
 
 	},
 	remove_Rooms: function () {
-		if (this.divs['rooms']) this.divs['rooms'].remove()
-		_board.roomsActive = false
+		this.divs['rooms'].remove()
+		this.divs['rooms'].classList.add('lkjlkjlkjlk')
+		console.log('remove rooms', this.divs['rooms'])
+		this.roomsActive = false
 	},
 
 	remove_nameInput: function (nameInputCallback) {

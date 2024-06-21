@@ -1,4 +1,4 @@
-import { _physics } from './physics.js'
+import { _physics } from '../js/game/physics.js'
 import { _front } from '../js/game/board.js'
 
 var allDivs = {};

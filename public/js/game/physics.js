@@ -30,8 +30,6 @@ const _physics = {
 					htmlElement.dataId = _physics.getAnId(32)
 					_physics.physicBodiesIndexed[htmlElement.dataId] = this
 				}
-				console.log('Rectangle', (pushit ? 'physicBodies' : 'div'), this)
-				console.log('htmlElement.dataId', htmlElement.dataId)
 			}
 
 			function sin(x) {
@@ -162,7 +160,9 @@ const _physics = {
 
 		checkcollisionCallback(B)
 
-		if (A.isCollided(B)) return true;
+		if (A.isCollided(B)) {
+			return true;
+		}
 		return false
 	}
 }
