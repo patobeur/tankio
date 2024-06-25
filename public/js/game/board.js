@@ -16,7 +16,7 @@ const _board = {
 		this.divs['tankioDiv'].appendChild(this.divs['logo']);
 		this.divs['tankioDiv'].appendChild(this.divs['clientContainer']);
 
-		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'enter your name (6letters)...', className: 'name-input bad', textContent: '' }, style: {} })
+		this.divs['nameInput'] = _front.createDiv({ tag: 'input', attributes: { type: 'texte', placeholder: 'Enter your name (5 letters)...', className: 'name-input bad', textContent: '' }, style: {} })
 		this.divs['nameNeeded'] = _front.createDiv({ tag: 'div', attributes: { className: 'nameneeded', }, style: {} })
 		this.divs['nameNeededItem'] = _front.createDiv({ tag: 'div', attributes: { texteContent: '..qsdqsd.', className: 'nameneeded-item', }, style: {} })
 
@@ -158,7 +158,17 @@ const _front = {
 					}
 				}
 			}
+			if (params.recenter === true && (params.style.left && params.style.top)) {
+
+				let n = params.attributes.className ?? 'vide'
+				let t = params.style.top.slice(0, -2);
+				let l = params.style.left.slice(0, -2);
+				let w = params.style.width.slice(0, -2);
+				let h = params.style.height.slice(0, -2);
+				this.recentering(element, t, l, w, h, n)
+			}
 		}
+
 		return element;
 	},
 	addCss(stringcss, styleid) {
@@ -166,6 +176,17 @@ const _front = {
 		style.textContent = stringcss;
 		style.id = "css_" + styleid;
 		document.getElementsByTagName("head")[0].appendChild(style);
+	},
+	recentering: function (element, t, l, w, h, n) {
+		console.log('pos', t, l, w, h, n)
+		if (element.style.left && element.style.width) {
+			element.style.left = l - (w / 2) + 'px'
+		}
+		if (element.style.top && element.style.height) {
+			element.style.top = t - (h / 2) + 'px'
+		}
+		return element
+
 	},
 	replace: function (string) {
 		// TODO

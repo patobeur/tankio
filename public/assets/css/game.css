@@ -41,14 +41,13 @@
 	left: 0;
 }
 
+/* 
 .players-zone .map-zone .map .player {
-
-	position: absolute;
-	/* border-radius: 50%; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+*/
 
 .players-zone .map-zone .map .player .rangea {
 

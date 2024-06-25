@@ -15,8 +15,16 @@ const _physics = {
 				let angle = 0, transform = false
 
 				this.htmlElement = htmlElement;
-				this.width = htmlElement.clientWidth;
-				this.height = htmlElement.clientHeight;
+				// this.width = htmlElement.clientWidth;
+				// this.height = htmlElement.clientHeight;
+				let ww = htmlElement.style.width;
+				let hh = htmlElement.style.height;
+				this.width = ww.replace("px", "");
+				this.height = hh.replace("px", "");
+				// this.width = ww
+				// this.height = hh
+				console.log(htmlElement.clientWidth, htmlElement.style.height)
+				console.log(this.width, this.height)
 
 				if (typeof htmlElement.style.transform === 'string' && htmlElement.style.transform != '') {
 					transform = parseFloat(htmlElement.style.transform.replace(/rotate\(|deg\)/g, ''));
@@ -29,6 +37,7 @@ const _physics = {
 					_physics.physicBodies.push(this)
 					htmlElement.dataId = _physics.getAnId(32)
 					_physics.physicBodiesIndexed[htmlElement.dataId] = this
+					console.log(this)
 				}
 			}
 

@@ -1,6 +1,6 @@
 "use strict";
 import { _board, _console, _names, _front } from './board.js'
-import { _physics } from './physics.js'
+import { _physics } from './physicsok.js'
 let _keyboard = {
 	move: { x: 0, y: 0 },
 	actions: { moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, },
@@ -38,26 +38,6 @@ let _keyboard = {
 		if (_keyboard.actions.moveBackward) { _keyboard.move.y = 1; _keyboard.actions.ismoving = true; }
 		if (_keyboard.actions.moveLeft) { _keyboard.move.x = - 1; _keyboard.actions.ismoving = true; }
 		if (_keyboard.actions.moveRight) { _keyboard.move.x = 1; _keyboard.actions.ismoving = true; }
-
-		// let futurX = _game.user.datas.pos.x + _keyboard.move.x
-		// let futurY = _game.user.datas.pos.y + _keyboard.move.y
-
-		// if (futurX >= maxX) {
-		// 	console.log('out > X')
-		// 	console.log(futurX, futurY)
-		// 	_keyboard.move.x = 0
-		// }
-		// if (!(futurX < maxX && futurX > minX)) {
-		// 	console.log('out X')
-		// 	console.log(futurX, futurY)
-		// 	_keyboard.move.x = 0
-		// }
-		// if (!(futurY < maxY && futurY > minY)) {
-		// 	console.log('out Y')
-		// 	console.log(futurX, futurY)
-		// 	_keyboard.move.y = 0
-		// }
-
 	},
 	init: function () {
 		document.addEventListener("keydown", this.onDocumentKey, true);
@@ -93,8 +73,6 @@ const _game = {
 
 		this.addPlayerElement()
 		_keyboard.init(this.user.datas)
-
-
 		this.startAnimation()
 	},
 	refresh_roomers: function (paquet) {
@@ -107,6 +85,7 @@ const _game = {
 					if (typeof this.usersDiv[user.id] === 'undefined') { // si il n'existe pas !
 						console.log('addOtherPlayersElement:', user)
 						this.usersDiv[user.id] = _front.createDiv({
+							recenter: true,
 							tag: 'div', attributes: { className: 'mates', title: user.name },
 							style: {
 								left: ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px',
@@ -176,15 +155,18 @@ const _game = {
 	addPlayerElement: function () {
 		this.userDiv['player'] = new _physics.Rectangle(
 			_front.createDiv({
+				recenter: true,
 				tag: 'div', attributes: { className: 'player', title: this.user.name },
 				style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
-					left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
-					top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
-					// position: 'absolute',
+					// left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
+					// top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
+					left: (this.user.datas.pos.x) + 'px',
+					top: (this.user.datas.pos.y) + 'px',
+					position: 'absolute',
 					// borderRadius: '50%',
-					// display: 'flex',
-					// alignItems: 'center',
-					// justifyContent: 'center',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
 					// backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
 					width: this.user.datas.size.w + 'px',
 					height: this.user.datas.size.h + 'px'
@@ -202,9 +184,10 @@ const _game = {
 		if (this.map.blocs && this.map.blocs.invisibleWalls) {
 			this.map.blocs.invisibleWalls.forEach(element => {
 				let newBloc = new _physics.Rectangle(_front.createDiv({
+					recenter: true,
 					tag: 'div', attributes: { className: 'wall' }, style: {
 						position: 'absolute', outline: '1px solid red',
-						left: (element.x - (element.w / 2)) + 'px', top: (element.y - (element.h / 2)) + 'px',
+						left: (element.x) + 'px', top: (element.y) + 'px',
 						width: element.w + 'px', height: element.h + 'px',
 						transform: `rotate(${element.r}deg)`
 					}
@@ -219,10 +202,10 @@ const _game = {
 		console.log('_physics.physicBodies', _physics.physicBodies)
 	},
 	checkPlayerPos: function () {
-		let maxX = (this.map.w / 2) // - (_game.user.datas.size.w / 2)
-		let minX = -(this.map.w / 2) // + (_game.user.datas.size.w / 2)
-		let maxY = (this.map.h / 2) // - (_game.user.datas.size.h / 2)
-		let minY = -(this.map.h / 2) // + (_game.user.datas.size.h / 2)
+		let maxX = (this.map.w) // - (_game.user.datas.size.w / 2)
+		let minX = 0 // + (_game.user.datas.size.w / 2)
+		let maxY = (this.map.h) // - (_game.user.datas.size.h / 2)
+		let minY = 0 // + (_game.user.datas.size.h / 2)
 
 		let futurX = _game.user.datas.pos.x + _keyboard.move.x
 		let futurY = _game.user.datas.pos.y + _keyboard.move.y
@@ -233,13 +216,14 @@ const _game = {
 		this.user.datas.pos.y += _keyboard.move.y
 		this.user.datas.pos.x += _keyboard.move.x
 
-		let px = (this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)
-		let py = (this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)
+		let px = this.user.datas.pos.x
+		let py = this.user.datas.pos.y
 
-		this.userDiv['player'].htmlElement.style.left = px + "px"
-		this.userDiv['player'].htmlElement.style.top = py + "px"
+		// positionnemement sur la map
+		this.userDiv['player'].htmlElement.style.left = px - (this.user.datas.size.w / 2) + "px"
+		this.userDiv['player'].htmlElement.style.top = py - (this.user.datas.size.h / 2) + "px"
 
-		this.userDiv['playerpos'].textContent = `x:${this.user.datas.pos.x + (this.map.w / 2)} y:${this.user.datas.pos.y + (this.map.h / 2)}`
+		this.userDiv['playerpos'].textContent = `x:${px} y:${py}`
 
 		this.newPlayerPositionCallback(this.user)
 	},
@@ -248,17 +232,19 @@ const _game = {
 	},
 	checkCollision: function () {
 		let collisions = 0
-		console.log('_physics.physicBodies', _physics.physicBodies)
+		let tests = 0
 		_physics.physicBodies.forEach(element => {
-			if (_physics.checkcollisionRect(this.userDiv['player'], element, this.checkcollisionCallback)) collisions++
+			if (_physics.checkcollisionRect(this.userDiv['player'], element, this.checkcollisionCallback)) collisions++;
+			tests++
 		});
-		// console.log('coolliding', collisions)
+		console.log('coolliding', collisions + "/" + tests)
 
 	},
 	setMapPos: function () {
-		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - (this.map.w / 2) - this.user.datas.pos.x)
-		let y = Math.floor((this.userDiv['mapZone'].clientHeight / 2) - (this.map.h / 2) - this.user.datas.pos.y)
-		this.userDiv['map'].style.transform = "translate(" + x + "px," + y + "px)";
+		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - this.user.datas.pos.x)
+		let y = Math.floor((this.userDiv['mapZone'].clientHeight / 2) - this.user.datas.pos.y)
+		this.userDiv['map'].style.top = y + "px";
+		this.userDiv['map'].style.left = x + "px";
 	},
 	startAnimation: function () {
 		this.update = setInterval(

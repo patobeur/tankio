@@ -168,7 +168,7 @@ io.on('connection', (socket) => {
 		if (usersInRoomCount < _rooms.maxUserPerRooms) {
 
 			// MAP 
-			let map = _maps.get_mapDatas('one')
+			let map = _maps.get_mapDatas()
 
 			// met la room du user dans prevRoom (vide si vide) si le user existe
 			_socketing.prevRoom = UsersState.getUser(socket.id)?.room
