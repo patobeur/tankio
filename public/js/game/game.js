@@ -53,29 +53,21 @@ const _game = {
 	usersDiv: {},
 	blocsDiv: {},
 	tchatActive: false,
-	physicBodies: [],// pour bientot
+	physicBodies: [],
 	OldUsersIndex: {},
 	init: function (user, users, map, newPlayerPositionCallback, testsDevDatas) {
-		console.log('user:', user)
-		console.log('users:', users)
-		console.log('map:', map)
-		console.log('testsDevDatas:', testsDevDatas)
 		this.newPlayerPositionCallback = newPlayerPositionCallback;
 		this.user = user;
 		this.users = users;
 		this.map = map
-
 		this.addMapsElement()
-
 		this.add_BlocsToMap()
-
-		// this.addOtherPlayersElement()
-
 		this.addPlayerElement()
 		_keyboard.init(this.user.datas)
 		this.startAnimation()
 	},
 	refresh_roomers: function (paquet) {
+		// console.log('refresh_roomers')
 		this.users = paquet.users
 		let NewUsersIndex = {}
 
@@ -83,27 +75,44 @@ const _game = {
 			this.users.forEach(user => {
 				if (this.user.id != user.id) { // si ce n'est pas nous !!
 					if (typeof this.usersDiv[user.id] === 'undefined') { // si il n'existe pas !
-						console.log('addOtherPlayersElement:', user)
 						this.usersDiv[user.id] = _front.createDiv({
 							recenter: true,
 							tag: 'div', attributes: { className: 'mates', title: user.name },
 							style: {
-								left: ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px',
-								top: ((this.map.h / 2) + user.datas.pos.y - (user.datas.size.h / 2)) + 'px',
-								backgroundColor: user.datas.clientDatas.color,
+								left: (user.datas.pos.x) + 'px',
+								top: (user.datas.pos.y) + 'px',
+								position: 'absolute',
 								width: user.datas.size.w + 'px',
 								height: user.datas.size.h + 'px'
 							}
 						})
 						this.userDiv[user.id + 'Char'] = _front.createDiv({
-							tag: 'div', attributes: { className: 'mates-charactere' }
+							tag: 'div', attributes: {
+								className: 'charactere'
+							},
+							style: {
+								width: user.datas.size.w + 'px',
+								height: user.datas.size.h + 'px',
+								backgroundColor: user.datas.clientDatas.color,
+							}
 						})
+						this.userDiv[user.id + 'Zone'] = _front.createDiv({
+							tag: 'div', attributes: {
+								className: 'zone'
+							},
+							style: {
+								backgroundColor: "red",
+								width: '30px',
+								height: '30px',
+							}
+						})
+						this.usersDiv[user.id].appendChild(this.userDiv[user.id + 'Zone'])
 						this.usersDiv[user.id].appendChild(this.userDiv[user.id + 'Char'])
 						this.userDiv['map'].appendChild(this.usersDiv[user.id])
 					}
 					else {// allready existe !
-						this.usersDiv[user.id].style.left = ((this.map.w / 2) + user.datas.pos.x - (user.datas.size.w / 2)) + 'px'
-						this.usersDiv[user.id].style.top = ((this.map.h / 2) + user.datas.pos.y - (user.datas.size.h / 2)) + 'px'
+						this.usersDiv[user.id].style.left = (user.datas.pos.x - (user.datas.size.w / 2)) + 'px'
+						this.usersDiv[user.id].style.top = (user.datas.pos.y - (user.datas.size.h / 2)) + 'px'
 					}
 					NewUsersIndex[user.id] = user.id
 				}
@@ -112,7 +121,7 @@ const _game = {
 
 		}
 		for (const id in this.OldUsersIndex) {
-			console.log(this.usersDiv[id])
+			// console.log(this.usersDiv[id])
 			if (typeof NewUsersIndex[id] === 'undefined') {
 				this.usersDiv[id].textContent = '☠️'
 				this.usersDiv[id].backgroundColor = 'none'
@@ -158,25 +167,32 @@ const _game = {
 				recenter: true,
 				tag: 'div', attributes: { className: 'player', title: this.user.name },
 				style: (this.user && this.user.datas && this.user.datas.clientDatas) ? {
-					// left: ((this.map.w / 2) + this.user.datas.pos.x - (this.user.datas.size.w / 2)) + 'px',
-					// top: ((this.map.h / 2) + this.user.datas.pos.y - (this.user.datas.size.h / 2)) + 'px',
 					left: (this.user.datas.pos.x) + 'px',
 					top: (this.user.datas.pos.y) + 'px',
 					position: 'absolute',
-					// borderRadius: '50%',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					// backgroundColor: this.user.datas.clientDatas.color ?? '#FFFFFF',
 					width: this.user.datas.size.w + 'px',
-					height: this.user.datas.size.h + 'px'
+					height: this.user.datas.size.h + 'px',
 				} : {}
 			}),
 			false
 		);
 		this.userDiv['playerChar'] = _front.createDiv({
-			tag: 'div', attributes: { className: 'player-charactere' }
+			tag: 'div', attributes: { className: 'charactere' },
+			style: {
+				backgroundColor: this.user.datas.clientDatas.color,
+				width: this.user.datas.size.w + 'px',
+				height: this.user.datas.size.h + 'px',
+			}
 		})
+		this.userDiv['playerZone'] = _front.createDiv({
+			tag: 'div', attributes: { className: 'zone' },
+			style: {
+				backgroundColor: this.user.datas.clientDatas.color,
+				width: '30px',
+				height: '30px',
+			}
+		})
+		this.userDiv['player'].htmlElement.appendChild(this.userDiv['playerZone'])
 		this.userDiv['player'].htmlElement.appendChild(this.userDiv['playerChar'])
 		this.userDiv['map'].appendChild(this.userDiv['player'].htmlElement)
 	},
@@ -193,13 +209,10 @@ const _game = {
 					}
 				}), true)
 
-				console.log('newBloc', newBloc, newBloc.htmlElement.dataId)
 				this.blocsDiv[newBloc.htmlElement.dataId] = newBloc
 				this.userDiv['map'].appendChild(newBloc.htmlElement)
 			});
 		}
-		console.log('this.blocsDiv', this.blocsDiv)
-		console.log('_physics.physicBodies', _physics.physicBodies)
 	},
 	checkPlayerPos: function () {
 		let maxX = (this.map.w) // - (_game.user.datas.size.w / 2)
@@ -213,22 +226,43 @@ const _game = {
 		if (futurX >= maxX || futurX <= minX) { _keyboard.move.x = 0 }
 		if (futurY >= maxY || futurY <= minY) { _keyboard.move.y = 0 }
 
-		this.user.datas.pos.y += _keyboard.move.y
-		this.user.datas.pos.x += _keyboard.move.x
+		// this.user.datas.pos.y += _keyboard.move.y
+		// this.user.datas.pos.x += _keyboard.move.x
 
-		let px = this.user.datas.pos.x
-		let py = this.user.datas.pos.y
+		// let px = this.user.datas.pos.x
+		// let py = this.user.datas.pos.y
 
-		// positionnemement sur la map
-		this.userDiv['player'].htmlElement.style.left = px - (this.user.datas.size.w / 2) + "px"
-		this.userDiv['player'].htmlElement.style.top = py - (this.user.datas.size.h / 2) + "px"
+		// // positionnemement sur la map
+		// this.userDiv['player'].htmlElement.style.left = px - (this.user.datas.size.w / 2) + "px"
+		// this.userDiv['player'].htmlElement.style.top = py - (this.user.datas.size.h / 2) + "px"
 
-		this.userDiv['playerpos'].textContent = `x:${px} y:${py}`
+		// this.userDiv['playerpos'].textContent = `x:${px} y:${py}`
 
+	},
+	refreshPlayerPos: function (deltaTime = 0.01, collisions) {
+		if (collisions > 0) {
+			_game.user.datas.pos.y = _game.user.datas.posOld.y
+			_game.user.datas.pos.x = _game.user.datas.posOld.x
+			this.userDiv['player'].htmlElement.style.left = _game.user.datas.pos.x - (_game.user.datas.size.w / 2) + "px"
+			this.userDiv['player'].htmlElement.style.top = _game.user.datas.pos.y - (_game.user.datas.size.h / 2) + "px"
+		}
+		else {
+			_game.user.datas.posOld = { x: _game.user.datas.pos.x, y: _game.user.datas.pos.y }
+
+			_game.user.datas.pos.y += (_keyboard.move.y * deltaTime * 100)
+			_game.user.datas.pos.x += (_keyboard.move.x * deltaTime * 100)
+
+			// positionnemement sur la map
+			this.userDiv['player'].htmlElement.style.left = _game.user.datas.pos.x - (_game.user.datas.size.w / 2) + "px"
+			this.userDiv['player'].htmlElement.style.top = _game.user.datas.pos.y - (_game.user.datas.size.h / 2) + "px"
+
+			this.userDiv['playerpos'].textContent = `x:${this.user.datas.pos.x} y:${this.user.datas.pos.y}`
+		}
 		this.newPlayerPositionCallback(this.user)
+
 	},
 	checkcollisionCallback: (element) => {
-		element.htmlElement.style.transform = 'rotate(' + (element.angle += 1) + 'deg)';
+		// element.htmlElement.style.transform = 'rotate(' + (element.angle += 1) + 'deg)';
 	},
 	checkCollision: function () {
 		let collisions = 0
@@ -237,8 +271,7 @@ const _game = {
 			if (_physics.checkcollisionRect(this.userDiv['player'], element, this.checkcollisionCallback)) collisions++;
 			tests++
 		});
-		console.log('coolliding', collisions + "/" + tests)
-
+		return collisions
 	},
 	setMapPos: function () {
 		let x = Math.floor((this.userDiv['mapZone'].clientWidth / 2) - this.user.datas.pos.x)
@@ -251,9 +284,12 @@ const _game = {
 			() => {
 				if (_keyboard.actions.ismoving) {
 					this.checkPlayerPos()
-					this.setMapPos()
+					let collisions = this.checkCollision()
+					this.refreshPlayerPos(0.01, collisions)
+					if (collisions < 1) {
+						this.setMapPos()
+					}
 				}
-				this.checkCollision()
 			},
 			15
 		)

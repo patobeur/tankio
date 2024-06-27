@@ -154,9 +154,15 @@ io.on('connection', (socket) => {
 		UsersState.setUserPos(socket.id, datas.datas.pos)
 		if (_socketing.user && typeof _socketing.user.room != 'undefined') {
 			_socketing.users = UsersState.getUsersInRoom(_socketing.user.room)
-			io.to(_socketing.user.room).emit('refreshGamePositions', {
-				users: _socketing.users,
-			})
+			if (_socketing.users.length > 1) {
+				io.to(_socketing.user.room).emit('refreshGamePositions', {
+					users: _socketing.users,
+				})
+			}
+			else if (_socketing.users.length === 1) {
+				socket.emit('refreshSoloPlayerPos', _socketing.users)
+
+			}
 		}
 		else {
 			console.log('joueur sans room', socket.id)
@@ -203,11 +209,8 @@ io.on('connection', (socket) => {
 				message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
 			})
 
-			// idem // Update rooms list for everyone 
-			io.emit('refreshActiveRoomsList', {
-				rooms: UsersState.getAllActiveRooms()
-			})
-			// Update rooms list for everyone in the room
+
+			// addPlayer to all players in the room
 			io.to(_socketing.user.room).emit('addPlayer', {
 				rooms: UsersState.getAllActiveRooms()
 			})

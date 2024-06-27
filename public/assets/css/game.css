@@ -41,30 +41,6 @@
 	left: 0;
 }
 
-/* 
-.players-zone .map-zone .map .player {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-*/
-
-.players-zone .map-zone .map .player .rangea {
-
-	position: absolute;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.players-zone .map-zone .map .mates {
-	position: absolute;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
 
 .players-zone .resize-map {
 	position: absolute;
@@ -85,18 +61,24 @@
 	transform: scale(1.5);
 }
 
-
-.players-zone .map-zone .map .mates .mates-charactere,
-.players-zone .map-zone .map .player .player-charactere {
-	position: relative;
+.players-zone .map-zone .map .mates .charactere,
+.players-zone .map-zone .map .player .charactere {
+	position: absolute;
 	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
 	background-image: url(/assets/sheets/hench_idle.gif);
 	background-position: center center;
+}
+
+.players-zone .map-zone .map .player .zone,
+.players-zone .map-zone .map .mates .zone {
+	opacity: 0.2;
+	position: absolute;
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	left: -50%;
+	top: -50%;
+
 }
 
 .players-zone .map-zone .map .player .player-charactere.left {

@@ -40,7 +40,6 @@ const _board = {
 	},
 
 	add_Rooms: function (rooms, enterRoomButtonCallback) {
-		console.log('rooms received :', rooms)
 		this.divs['rooms'] = _front.createDiv({ tag: 'div', attributes: { className: 'rooms', textContent: '' }, style: {} })
 		this.divs['roomtitle'] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: 'Select a room' }, style: {} })
 		rooms.forEach(element => {
@@ -57,14 +56,12 @@ const _board = {
 		this.divs['rooms'].prepend(this.divs['roomtitle']);
 		this.divs['clientContainer'].appendChild(this.divs['rooms']);
 		this.roomsActive = true
-		console.log('_board.roomsActive', _board.roomsActive)
-
 	},
 	remove_Rooms: function () {
-		this.divs['rooms'].remove()
-		this.divs['rooms'].classList.add('lkjlkjlkjlk')
-		console.log('remove rooms', this.divs['rooms'])
-		this.roomsActive = false
+		if (this.roomsActive) {
+			this.divs['rooms'].remove()
+			this.roomsActive = false
+		}
 	},
 
 	remove_nameInput: function (nameInputCallback) {
@@ -178,7 +175,7 @@ const _front = {
 		document.getElementsByTagName("head")[0].appendChild(style);
 	},
 	recentering: function (element, t, l, w, h, n) {
-		console.log('pos', t, l, w, h, n)
+		// console.log('pos', t, l, w, h, n)
 		if (element.style.left && element.style.width) {
 			element.style.left = l - (w / 2) + 'px'
 		}

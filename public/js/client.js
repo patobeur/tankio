@@ -1,4 +1,79 @@
 "use strict";
+// 3d 
+import * as THREE from "three";
+import { _scene, } from './game3D/scene.js'
+import { _physics } from './game3D/physics.js';
+import { _player } from './game3D/player.js';
+import { _GLTFLoader, _TextureLoader } from './game3D/loaders.js';
+import { ModelsManager } from './game3D/ModelsManager.js';
+import { _OrbitControls } from './game3D/OrbitControls.js';
+import Stats from 'three/addons/libs/stats.module.js';
+
+let initWorld = () => {
+	let delta = 0
+	let clock = new THREE.Clock()
+	let stats = new Stats()
+	stats.dom.style.top = 'initial'
+	stats.dom.style.bottom = '0'
+	let _ModelsManagerClass = undefined
+	// ------------------------
+	// ANIMATION
+	// ------------------------
+	const animate = function (time) {
+		requestAnimationFrame(animate)
+		delta = clock.getDelta()
+
+		if (_ModelsManagerClass.initiated) {
+			_ModelsManagerClass.allMeshsAndDatas.character['Kimono_Female'].MegaMixer.update(delta);
+		}
+
+		if (_scene.SUN.userData.initiated) _scene.SUN.move();
+		if (_player && _player.initiated) _player.update(delta, time); // Vérifier si le joueur bouge
+		if (typeof _OrbitControls === 'object') _OrbitControls.update();
+
+		_physics.updateWorldPhysics(delta, time);
+		_scene.renderer.render(_scene.scene, _scene.camera);
+
+		stats.update();
+	};
+
+	let starter = () => {
+		document.body.appendChild(stats.dom);
+		_physics._initPhysicsWorld()
+		_scene.init(_physics)
+
+		_ModelsManagerClass = new ModelsManager({
+			fonctionretour: (allMeshsAndDatas) => {
+
+				_player.init(_physics, _GLTFLoader, _ModelsManagerClass)
+
+				_physics.addRandomPlat(_scene, 5)
+				_physics.addRandomBox(_scene, 5)
+				_physics.addRandomSphere(_scene, 5)
+
+				_scene.renderer.render(_scene.scene, _scene.camera);
+				_OrbitControls.init(_scene, _player)
+
+				animate(0);
+			}
+		})
+
+	}
+	// ------------------------
+	// loadAssets
+	// ------------------------
+	const loadAssets = () => {
+		let root = '';
+		// _AnimatedLoader.init(root, () => {
+		_GLTFLoader.init(root, () => {
+			_TextureLoader.init(root, starter)
+		})
+		// })
+	}
+	loadAssets()
+}
+// 3d end
+
 import { _board, _console, _names, _front, _genererCouleurHex } from './game/board.js'
 import { _game } from './game/game.js'
 let _client = {
@@ -75,21 +150,17 @@ let _client = {
 				if (event.target.value.length > _board.nameMaxChar + _board.nameMinChar) {
 					event.target.value = event.target.value.substring(0, event.target.value.length - 1)
 				}
-				console.log('_board.roomsActive1', _board.roomsActive)
 				if ((event.target.value.length >= _board.nameMinChar || event.target.value.length <= _board.nameMaxChar) && _board.roomsActive === false) {
 					_board.nameStyleIfCorect(true)
 					_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback)
 				}
-				console.log('_board.roomsActive2', _board.roomsActive)
+
 				if ((event.target.value.length < _board.nameMinChar || event.target.value.length > _board.nameMaxChar) && _board.roomsActive === true) {
 					_board.nameStyleIfCorect(false)
 					_board.remove_Rooms()
 				}
-
 			}
-			// quand le nom fait 5 ou plus 
 			_board.divs['nameInput'].addEventListener('input', this.nameInputCallback)
-
 			_board.divs['nameInput'].focus()
 		})
 		// Listen for roomFull
@@ -102,6 +173,7 @@ let _client = {
 		})
 		// Listen for welcome
 		this.socket.on('welcome', (paquet) => {
+			initWorld()
 			console.log('welcome in room :' + paquet.user.room)
 			_board.remove_nameInput(this.nameInputCallback)
 			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback, paquet.user.room)
@@ -133,10 +205,14 @@ let _client = {
 		// Listen for message send
 		this.socket.on("message", (data) => _console.addMultipleMessages(data))
 
-		// Listen refreshActiveRoomsList
-		this.socket.on("refreshActiveRoomsList", (data) => {
-			console.log('nothing happen refreshActiveRoomsList', data)
-		})
+		// // Listen refreshActiveRoomsList
+		// this.socket.on("refreshActiveRoomsList", (data) => {
+		// 	console.log('nothing happen refreshActiveRoomsList', data)
+		// })
+		// // Listen refreshActiveRoomsList
+		// this.socket.on("refreshSoloPlayerPos", (user) => {
+		// 	console.log('refreshPlayerPos', user.datas.pos)
+		// })
 		// Listen refreshActiveRoomsList
 		this.socket.on("refreshGamePositions", (paquet) => {
 			_game.refresh_roomers({ users: paquet.users })
@@ -144,12 +220,13 @@ let _client = {
 
 		// en test avant intégration
 		this.socket.on("refreshUsersListInRoom", (paquet) => {
-			_board.refresh_roomers({ user: this.user, users: paquet.users })
-			_game.refresh_roomers({ users: paquet.users })
+			if (paquet.users.length > 1) {
+				_board.refresh_roomers({ user: this.user, users: paquet.users })
+				_game.refresh_roomers({ users: paquet.users })
+			}
 		})
 		// en test avant intégration
 		this.socket.on("disconnected", (message) => {
-
 			location.reload();
 		})
 	},
