@@ -1,4 +1,6 @@
 "use strict";
+
+import { _front } from './front.js'
 const _board = {
 	roomsActive: false,
 	roomButtonsActive: false,
@@ -27,18 +29,6 @@ const _board = {
 
 		// this.divs['clientContainer'].appendChild(this.divs['nameInput']);
 	},
-	add_Folders: function (paquet) {
-		this.divs['folders'] = _front.createDiv({ tag: 'div', attributes: { className: 'folders', textContent: '' }, style: {} })
-		let user = paquet.user
-		let folders = ['name', 'room']
-		folders.forEach(element => {
-			let folderName = 'folder' + element
-			this.divs[folderName] = _front.createDiv({ tag: 'div', attributes: { className: 'folder-item', textContent: user[element] }, style: {} })
-			this.divs['folders'].appendChild(this.divs[folderName]);
-		});
-		this.divs['tankioDiv'].prepend(this.divs['folders']);
-	},
-
 	add_Rooms: function (rooms, enterRoomButtonCallback) {
 		this.divs['rooms'] = _front.createDiv({ tag: 'div', attributes: { className: 'rooms', textContent: '' }, style: {} })
 		this.divs['roomtitle'] = _front.createDiv({ tag: 'div', attributes: { className: 'room-item', textContent: 'Select a room' }, style: {} })
@@ -88,17 +78,7 @@ const _board = {
 	},
 	add_roomers: function () {
 		this.divs['roomers'] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers', textContent: '' }, style: {} })
-		// let users = paquet.users
-		// let user = paquet.user
 
-		// users.forEach(element => {
-		// 	if (element.id != user.id) {
-		// 		console.log('in room', element.name)
-		// 		let roomerName = 'roomer' + element.name
-		// 		this.divs[roomerName] = _front.createDiv({ tag: 'div', attributes: { className: 'roomers-item', textContent: element.name }, style: {} })
-		// 		this.divs['roomers'].appendChild(this.divs[roomerName]);
-		// 	}
-		// });
 		this.divs['tankioDiv'].prepend(this.divs['roomers']);
 	},
 	refresh_roomers: function (paquet) {
@@ -140,79 +120,6 @@ const _board = {
 			: this.divs['nameInput'].classList.add('bad');
 	},
 }
-const _front = {
-	id: new Number(0),
-	createDiv: function (params) {
-		let element = document.createElement(params.tag);
-		if (params.attributes) {
-			for (const key in params.attributes) {
-				if (Object.hasOwnProperty.call(params.attributes, key))
-					element[key] = params.attributes[key];
-				if (params.style) {
-					for (const key2 in params.style) {
-						if (Object.hasOwnProperty.call(params.style, key2))
-							element.style[key2] = params.style[key2];
-					}
-				}
-			}
-			if (params.recenter === true && (params.style.left && params.style.top)) {
-
-				let n = params.attributes.className ?? 'vide'
-				let t = params.style.top.slice(0, -2);
-				let l = params.style.left.slice(0, -2);
-				let w = params.style.width.slice(0, -2);
-				let h = params.style.height.slice(0, -2);
-				this.recentering(element, t, l, w, h, n)
-			}
-		}
-
-		return element;
-	},
-	addCss(stringcss, styleid) {
-		let style = document.createElement("style");
-		style.textContent = stringcss;
-		style.id = "css_" + styleid;
-		document.getElementsByTagName("head")[0].appendChild(style);
-	},
-	recentering: function (element, t, l, w, h, n) {
-		// console.log('pos', t, l, w, h, n)
-		if (element.style.left && element.style.width) {
-			element.style.left = l - (w / 2) + 'px'
-		}
-		if (element.style.top && element.style.height) {
-			element.style.top = t - (h / 2) + 'px'
-		}
-		return element
-
-	},
-	replace: function (string) {
-		// TODO
-		// const map = {
-		// 	"&": "&amp;",
-		// 	"<": "&lt;",
-		// 	">": "&gt;",
-		// 	'"': "&quot;",
-		// 	"'": "&#x27;",
-		// 	"/": "&#x2F;",
-		// 	"`": "&#x60;",
-		// 	"=": "&#x3D;",
-		// 	"-": "&#x2D;"
-		// };
-		// const reg = /[&<>"'/`=-]/g;
-		// return string.replace(reg, (match) => map[match]);
-	},
-	sanitize: function (string) {
-		// TODO
-		const regex = /[^a-zA-Z0-9 ,:'._-]/g;
-		return string.replace(regex, '');
-	},
-	sanitizeName: function (string) {
-		// TODO
-		const regex = /[^a-zA-Z0-9]/g;
-		return string.replace(regex, '');
-	},
-	rand: (min, max) => { return Math.floor(Math.random() * (max - min + 1) + min); },
-};
 const _console = {
 	counter: new Number(0),
 	messages: {},

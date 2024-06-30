@@ -1,81 +1,12 @@
 "use strict";
-// 3d 
-import * as THREE from "three";
-import { _scene, } from './game3D/scene.js'
-import { _physics } from './game3D/physics.js';
-import { _player } from './game3D/player.js';
-import { _GLTFLoader, _TextureLoader } from './game3D/loaders.js';
-import { ModelsManager } from './game3D/ModelsManager.js';
-import { _OrbitControls } from './game3D/OrbitControls.js';
-import Stats from 'three/addons/libs/stats.module.js';
 
-let initWorld = () => {
-	let delta = 0
-	let clock = new THREE.Clock()
-	let stats = new Stats()
-	stats.dom.style.top = 'initial'
-	stats.dom.style.bottom = '0'
-	let _ModelsManagerClass = undefined
-	// ------------------------
-	// ANIMATION
-	// ------------------------
-	const animate = function (time) {
-		requestAnimationFrame(animate)
-		delta = clock.getDelta()
-
-		if (_ModelsManagerClass.initiated) {
-			_ModelsManagerClass.allMeshsAndDatas.character['Kimono_Female'].MegaMixer.update(delta);
-		}
-
-		if (_scene.SUN.userData.initiated) _scene.SUN.move();
-		if (_player && _player.initiated) _player.update(delta, time); // Vérifier si le joueur bouge
-		if (typeof _OrbitControls === 'object') _OrbitControls.update();
-
-		_physics.updateWorldPhysics(delta, time);
-		_scene.renderer.render(_scene.scene, _scene.camera);
-
-		stats.update();
-	};
-
-	let starter = () => {
-		document.body.appendChild(stats.dom);
-		_physics._initPhysicsWorld()
-		_scene.init(_physics)
-
-		_ModelsManagerClass = new ModelsManager({
-			fonctionretour: (allMeshsAndDatas) => {
-
-				_player.init(_physics, _GLTFLoader, _ModelsManagerClass)
-
-				_physics.addRandomPlat(_scene, 5)
-				_physics.addRandomBox(_scene, 5)
-				_physics.addRandomSphere(_scene, 5)
-
-				_scene.renderer.render(_scene.scene, _scene.camera);
-				_OrbitControls.init(_scene, _player)
-
-				animate(0);
-			}
-		})
-
-	}
-	// ------------------------
-	// loadAssets
-	// ------------------------
-	const loadAssets = () => {
-		let root = '';
-		// _AnimatedLoader.init(root, () => {
-		_GLTFLoader.init(root, () => {
-			_TextureLoader.init(root, starter)
-		})
-		// })
-	}
-	loadAssets()
-}
-// 3d end
-
-import { _board, _console, _names, _front, _genererCouleurHex } from './game/board.js'
+import { _board, _console, _genererCouleurHex } from './funcs/board.js'
+import { _front, } from './funcs/front.js'
+import { _resize2d, } from './funcs/resize2d.js'
+import { _keyboard, } from './funcs/keyboard.js'
 import { _game } from './game/game.js'
+import { _game3d } from './game3D/game3d.js'
+
 let _client = {
 	socket: undefined,
 	user: undefined,
@@ -128,10 +59,15 @@ let _client = {
 				_board.divs['inputMessage'].value = ''
 			}
 			this.onBlurMessageToRoomButtonCallback = (event) => {
-				_game.tchatActive = false;
+				// _game.tchatActive = false;
+				_keyboard.tchatActive = false;
+				console.log('out tchat')
 			}
 			this.onFocusSendMessageToRoomButtonCallback = (event) => {
-				_game.tchatActive = true;
+				console.log('enter tchat')
+				// _game.tchatActive = true;
+				_keyboard.tchatActive = true;
+				_keyboard.resetMoves()
 			}
 			this.nameInputCallback = (event) => {
 				if (event.target.value.length >= 0) {
@@ -173,13 +109,10 @@ let _client = {
 		})
 		// Listen for welcome
 		this.socket.on('welcome', (paquet) => {
-			initWorld()
 			console.log('welcome in room :' + paquet.user.room)
 			_board.remove_nameInput(this.nameInputCallback)
 			_board.add_Rooms(this.openRooms, this.enterRoomButtonCallback, paquet.user.room)
 			_board.divs['clientContainer'].remove()
-
-			_board.add_Folders(paquet, this.messageCounter)
 
 			_board.add_chatArea()
 			_board.divs['inputMessage'].addEventListener('blur', this.onBlurMessageToRoomButtonCallback, true)
@@ -199,7 +132,10 @@ let _client = {
 
 
 			// initialization
-			_game.init(this.user, this.users, this.map, this.newPlayerPositionCallback, false)
+			_game.init(this.user, this.users, this.map, this.newPlayerPositionCallback)
+			_game3d(this.user, this.users, this.map, this.newPlayerPositionCallback)
+
+			_resize2d.init(_game)
 		})
 
 		// Listen for message send

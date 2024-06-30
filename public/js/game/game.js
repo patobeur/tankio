@@ -1,49 +1,7 @@
 "use strict";
-import { _board, _console, _names, _front } from './board.js'
+import { _front } from '../funcs/board.js'
+import { _keyboard } from '../funcs/keyboard.js'
 import { _physics } from './physicsok.js'
-let _keyboard = {
-	move: { x: 0, y: 0 },
-	actions: { moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, },
-	keyMap: {
-		KeyW: false,
-		KeyS: false,
-		KeyA: false,
-		KeyD: false,
-		KeyQ: false,
-		KeyE: false,
-		Space: false,
-		ArrowRight: false,
-		ArrowLeft: false,
-		ArrowUp: false,
-		ArrowDown: false,
-	},
-	onDocumentKey: function (e) {
-		if (_game.tchatActive === false) {
-			if (e.type === "keydown" || e.type === "keyup") {
-				_keyboard.keyMap[e.code] = e.type === "keydown";
-			}
-			_keyboard.actions.moveForward = (_keyboard.keyMap["KeyW"] || _keyboard.keyMap["ArrowUp"]);
-			_keyboard.actions.moveBackward = (_keyboard.keyMap["KeyS"] || _keyboard.keyMap["ArrowDown"]);
-			_keyboard.actions.moveLeft = (_keyboard.keyMap["KeyA"] || _keyboard.keyMap["ArrowLeft"]);
-			_keyboard.actions.moveRight = (_keyboard.keyMap["KeyD"] || _keyboard.keyMap["ArrowRight"]);
-
-			// console.log('this.actions', e.code)
-			_keyboard.checkMooves()
-		}
-	},
-	checkMooves: function () {
-		_keyboard.move = { x: 0, y: 0 }
-		_keyboard.actions.ismoving = false
-		if (_keyboard.actions.moveForward) { _keyboard.move.y = - 1; _keyboard.actions.ismoving = true; }
-		if (_keyboard.actions.moveBackward) { _keyboard.move.y = 1; _keyboard.actions.ismoving = true; }
-		if (_keyboard.actions.moveLeft) { _keyboard.move.x = - 1; _keyboard.actions.ismoving = true; }
-		if (_keyboard.actions.moveRight) { _keyboard.move.x = 1; _keyboard.actions.ismoving = true; }
-	},
-	init: function () {
-		document.addEventListener("keydown", this.onDocumentKey, true);
-		document.addEventListener("keyup", this.onDocumentKey, true);
-	},
-}
 
 const _game = {
 	user: undefined,
@@ -52,10 +10,9 @@ const _game = {
 	userDiv: {},
 	usersDiv: {},
 	blocsDiv: {},
-	tchatActive: false,
 	physicBodies: [],
 	OldUsersIndex: {},
-	init: function (user, users, map, newPlayerPositionCallback, testsDevDatas) {
+	init: function (user, users, map, newPlayerPositionCallback) {
 		this.newPlayerPositionCallback = newPlayerPositionCallback;
 		this.user = user;
 		this.users = users;
@@ -63,7 +20,7 @@ const _game = {
 		this.addMapsElement()
 		this.add_BlocsToMap()
 		this.addPlayerElement()
-		_keyboard.init(this.user.datas)
+		_keyboard.init()
 		this.startAnimation()
 	},
 	refresh_roomers: function (paquet) {
@@ -147,13 +104,6 @@ const _game = {
 		this.userDiv['mapZone'].appendChild(this.userDiv['map'])
 		this.userDiv['playersZone'].appendChild(this.userDiv['mapZone'])
 		this.userDiv['playersZone'].appendChild(this.userDiv['playerpos'])
-
-		this.userDiv['resizeMap'] = _front.createDiv({ tag: 'div', attributes: { className: 'resize-map', textContent: `🖥️` }, style: {} })
-		this.userDiv['resizeMap'].addEventListener('click', () => {
-			this.userDiv['playersZone'].classList = "players-zone full"
-			this.setMapPos()
-		})
-		this.userDiv['playersZone'].appendChild(this.userDiv['resizeMap'])
 
 		document.body.appendChild(this.userDiv['playersZone'])
 		this.setMapPos()

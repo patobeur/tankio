@@ -2,8 +2,8 @@
 	position: absolute;
 	top: 5px;
 	right: 5px;
-	width: 50%;
-	height: 50%;
+	width: 10%;
+	height: 10%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -15,11 +15,11 @@
 	height: calc(100% - 10px);
 }
 
-.players-zone.medium {
-	top: 20px;
-	right: 20px;
-	width: calc(100% - 40px);
-	height: calc(100% - 40px);
+.players-zone.middle {
+	top: 100px;
+	right: 100px;
+	width: calc(100% - 200px);
+	height: calc(100% - 200px);
 }
 
 

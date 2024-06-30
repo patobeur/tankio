@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 	<head>
 		<meta charset="UTF-8">
@@ -7,6 +7,7 @@
 		<title>TankIo</title>
 		<link rel="stylesheet" href="./assets/css/style.css">
 		<link rel="stylesheet" href="./assets/css/game.css">
+		<link rel="stylesheet" href="./assets/css/main.css">
 		<script src="/node_modules_min/three/examples/jsm/libs/ammo.wasm.js"></script>
 		<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 		<script type="importmap">
@@ -22,6 +23,16 @@
 	</head>
 
 	<body>
+		<div id="instructions">
+			<h1>Tankers</h1>
+			Q D to rotate tank<br />
+			Z S to move forward and backward<br />
+			A E to move left and right<br />
+			Mousemove to rotate turret<br />
+			Mousewheel to dolly in/out<br />
+			Spacebar : change ammo model.<br />
+			Left mouse clic to fire an ammo !<br />
+		</div>
 		<div id="tankio">
 			<div id="ola" class="check-item title">Checking !</div>
 			<div id="ammo" class="check-item">ammo : NO</div>

@@ -51,7 +51,6 @@ let startApp = function (SOCKET) {
 		if (SOCKET.connected) {
 			connectedDiv.classList.add('ok')
 			console.log('SOCKET.connected :', SOCKET.connected)
-			// console.log('SOCKET :', SOCKET.id)
 			_client.init({ socket: SOCKET })
 		} else {
 			console.log('SOCKET.connected :', SOCKET.connected)

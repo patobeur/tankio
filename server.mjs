@@ -95,10 +95,10 @@ let _socketing = {
 			id: this.socket.id,
 			openRooms: _rooms.getOpensRooms(),//['a', 'b', 'c'], // TODO generate it
 			folders: ['name', 'room'],
-			user: {
-				name: 'invité',
-				room: 'vide'
-			}
+			// user: {
+			// 	name: 'invité',
+			// 	room: 'vide'
+			// }
 		}
 		this.socket.emit('init', paquet)
 
@@ -208,7 +208,6 @@ io.on('connection', (socket) => {
 				users: _socketing.users,
 				message: `[${UsersState.getTime()}][${_socketing.user.room}][Server] ${_socketing.user.name} has joined the room`
 			})
-
 
 			// addPlayer to all players in the room
 			io.to(_socketing.user.room).emit('addPlayer', {

@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { _scene, } from './scene.js'
 import { _OrbitControls } from './OrbitControls.js';
 import { _Engine, _Shoot } from './Engine.js';
+import { _keyboard3D } from '../funcs/keyboard.js'
 
 let _player = {
 	initiated: false,
@@ -11,22 +12,12 @@ let _player = {
 	pointerLocked: true,
 	// ----------------
 	inputVelocity: new THREE.Vector3(),
-	actions: { ismooving: false, rotating: false, moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, turnLeft: false, turnRight: false, jump: false, isjumping: false },
 	shootTypes: ['basic', 'basic2', 'basic3'],
 	currentShootIndex: 0,
 	shoot: false,
 	turnSpeed: 2.0,
 	stats: {
 		hp: 100
-	},
-	keyMap: {
-		KeyW: false,
-		KeyS: false,
-		KeyA: false,
-		KeyD: false,
-		KeyQ: false,
-		KeyE: false,
-		Space: false,
 	},
 	config: {
 		name: "playerBox",
@@ -40,7 +31,7 @@ let _player = {
 		shape: undefined,
 		color: 0xffff00,
 		transparent: true,
-		opacity: .8,
+		opacity: .1,
 		shininess: 0,
 		castShadow: false,
 		receiveShadow: false,
@@ -58,7 +49,6 @@ let _player = {
 		this.playerTurret = this.playerTank.children[0].children[3]
 		this.addProjectilOrigineMesh()
 
-		// this.config = _physics.modelsPhysics.playerBox
 		this.panelManager()
 		this.pointerManager()
 		_physics.set_MeshAndPhysics(this.config, _scene)
@@ -77,6 +67,7 @@ let _player = {
 
 		this.playerMesh.add(this.config.animatedMesh)
 
+		_keyboard3D.init(_player)
 		_Shoot.init(this.playerMesh, this.playerTurret, _scene, _physics)
 		_Engine.init(_ModelsManager)
 
@@ -98,26 +89,6 @@ let _player = {
 		console.log('currentShootIndex', this.currentShootIndex)
 		this.switchShoot = false
 	},
-	onDocumentMouseDown: function (event) { if (event.button === 0) _player.shoot = true; },
-	onDocumentMouseUp: function (event) { if (event.button === 0) _player.shoot = false; },
-	onDocumentKey: function (e) {
-		if (e.type === "keydown" || e.type === "keyup") _player.keyMap[e.code] = e.type === "keydown";
-		if (_player.pointerLocked) {
-			_player.actions.moveForward = _player.keyMap["KeyW"];
-			_player.actions.moveBackward = _player.keyMap["KeyS"];
-			_player.actions.moveLeft = _player.keyMap["KeyQ"];
-			_player.actions.moveRight = _player.keyMap["KeyE"];
-			_player.actions.turnLeft = _player.keyMap["KeyA"];
-			_player.actions.turnRight = _player.keyMap["KeyD"];
-			_player.actions.jump = _player.keyMap["KeyJ"];
-			_player.actions.switchShoot = _player.keyMap["Space"];
-			// Condition pour changer le type de tir avec la barre d'espace
-			// if (e.code === "Space" && e.type === "keydown") {
-			// 	_player.switchShootType();
-			// 	// _player.actions.jump = true
-			// }
-		}
-	},
 	pointerManager: function () {
 		document.addEventListener("pointerlockchange", () => {
 			if (document.pointerLockElement === _scene.renderer.domElement) {
@@ -125,20 +96,20 @@ let _player = {
 				_player.startButton.style.display = "none";
 				_player.menuPanel.style.display = "none";
 				this.instructionsPanel.style.display = "none";
-				document.addEventListener("keydown", _player.onDocumentKey, false);
-				document.addEventListener("keyup", _player.onDocumentKey, false);
+				document.addEventListener("keydown", _keyboard3D.onDocumentKey, false);
+				document.addEventListener("keyup", _keyboard3D.onDocumentKey, false);
 				_scene.renderer.domElement.addEventListener("mousemove", _OrbitControls.onDocumentMouseMove, false);
 				_scene.renderer.domElement.addEventListener("wheel", _OrbitControls.onDocumentMouseWheel, false);
-				_scene.renderer.domElement.addEventListener("mousedown", _player.onDocumentMouseDown, false);
-				_scene.renderer.domElement.addEventListener("mouseup", _player.onDocumentMouseUp, false);
+				_scene.renderer.domElement.addEventListener("mousedown", _keyboard3D.onDocumentMouseDown, false);
+				_scene.renderer.domElement.addEventListener("mouseup", _keyboard3D.onDocumentMouseUp, false);
 
 			} else {
 				_player.pointerLocked = false;
 				_player.menuPanel.style.display = "block";
-				document.removeEventListener("keydown", _player.onDocumentKey, false);
-				document.removeEventListener("keyup", _player.onDocumentKey, false);
-				_scene.renderer.domElement.removeEventListener("mousedown", _player.onDocumentMouseDown, false);
-				_scene.renderer.domElement.removeEventListener("mouseup", _player.onDocumentMouseUp, false);
+				document.removeEventListener("keydown", _keyboard3D.onDocumentKey, false);
+				document.removeEventListener("keyup", _keyboard3D.onDocumentKey, false);
+				_scene.renderer.domElement.removeEventListener("mousedown", _keyboard3D.onDocumentMouseDown, false);
+				_scene.renderer.domElement.removeEventListener("mouseup", _keyboard3D.onDocumentMouseUp, false);
 				_scene.renderer.domElement.removeEventListener("mousemove", _OrbitControls.onDocumentMouseMove, false);
 				_scene.renderer.domElement.removeEventListener("wheel", _OrbitControls.onDocumentMouseWheel, false);
 				setTimeout(() => { _player.startButton.style.display = "block"; this.instructionsPanel.style.display = "block"; }, 1000);
@@ -172,20 +143,20 @@ let _player = {
 		// is jumping 
 		// let max = (this.config[this.config.shapeType].y)
 		// if (cube.position.y > 0 + max) {
-		// 	this.actions.isjumping = true;
-		// 	this.actions.jump = false
+		// 	_keyboard3D.actions.isjumping = true;
+		// 	_keyboard3D.actions.jump = false
 		// }
 		// else {
-		// 	this.actions.isjumping = false
+		// 	_keyboard3D.actions.isjumping = false
 		// }
 		// if (_player.actions.jump && !_player.actions.isjumping) this.jump(cube.userData.physicsBody);
 
 
 		// AVANT ARRIERE
 		let forward = new THREE.Vector3(0, 0, 1).applyQuaternion(cube.quaternion).normalize();
-		if (this.actions.moveForward || this.actions.moveBackward) {
-			if (this.actions.moveForward) _Engine.powerUp();
-			else if (this.actions.moveBackward) _Engine.powerDown();
+		if (_keyboard3D.actions.moveForward || _keyboard3D.actions.moveBackward) {
+			if (_keyboard3D.actions.moveForward) _Engine.powerUp();
+			else if (_keyboard3D.actions.moveBackward) _Engine.powerDown();
 		}
 
 		if (_Engine.status.power !== 0) {
@@ -195,17 +166,17 @@ let _player = {
 
 		// TURN GAUCHE DROITE
 		let right = new THREE.Vector3(1, 0, 0).applyQuaternion(cube.quaternion).normalize();
-		if (this.actions.moveLeft) this.inputVelocity.add(right.multiplyScalar(-5 * deltaTime));
-		if (this.actions.moveRight) this.inputVelocity.add(right.multiplyScalar(5 * deltaTime));
+		if (_keyboard3D.actions.moveLeft) this.inputVelocity.add(right.multiplyScalar(-5 * deltaTime));
+		if (_keyboard3D.actions.moveRight) this.inputVelocity.add(right.multiplyScalar(5 * deltaTime));
 
 		// Calculer les nouvelles rotations et position
-		if (this.actions.turnLeft || this.actions.turnRight) {
+		if (_keyboard3D.actions.turnLeft || _keyboard3D.actions.turnRight) {
 			let sens = _Engine.status.power >= 0 ? 1 : -1; // invert directection while going back
-			let angle = (this.actions.turnLeft ? 1 : -1) * deltaTime * this.turnSpeed * sens;
+			let angle = (_keyboard3D.actions.turnLeft ? 1 : -1) * deltaTime * this.turnSpeed * sens;
 			let axis = new THREE.Vector3(0, 1, 0);
 			quaternion.setFromAxisAngle(axis, angle);
 			cube.quaternion.multiplyQuaternions(quaternion, cube.quaternion);
-			// console.log((this.actions.turnLeft ? 'tourner a droite' : 'tourner a gauche'))
+			// console.log((_keyboard3D.actions.turnLeft ? 'tourner a droite' : 'tourner a gauche'))
 		}
 
 		// ----------------
@@ -250,12 +221,12 @@ let _player = {
 		_Engine.update()
 	},
 	jump: function () {
-		if (this.actions && this.actions.jump) { // Simple vérification pour permettre de sauter seulement si on est proche du sol
+		if (_keyboard3D.actions && _keyboard3D.actions.jump) { // Simple vérification pour permettre de sauter seulement si on est proche du sol
 			let cube = this.config.mesh
 			let jumpForce = new Ammo.btVector3(0, 5, 0); // Modifier la force du saut selon besoin
 			cube.userData.physicsBody.applyCentralImpulse(jumpForce);
-			this.actions.jump = false
-			this.actions.isjumping = true
+			_keyboard3D.actions.jump = false
+			_keyboard3D.actions.isjumping = true
 		}
 
 	},

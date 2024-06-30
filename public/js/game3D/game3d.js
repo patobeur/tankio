@@ -1,26 +1,14 @@
-
-"use strict";
+// 3d 
 import * as THREE from "three";
-// import { _scene, } from './scene.js'
-
-
-
-
-
-
+import { _scene, } from './scene.js'
 import { _physics } from './physics.js';
 import { _player } from './player.js';
 import { _GLTFLoader, _TextureLoader } from './loaders.js';
 import { ModelsManager } from './ModelsManager.js';
 import { _OrbitControls } from './OrbitControls.js';
-
 import Stats from 'three/addons/libs/stats.module.js';
-// let mixer;
-// let idleAction, runAction;
-// let activeAction;
 
-
-let initWorld = () => {
+let _game3d = (user, users, map, newPlayerPositionCallback) => {
 	let delta = 0
 	let clock = new THREE.Clock()
 	let stats = new Stats()
@@ -83,6 +71,8 @@ let initWorld = () => {
 	}
 	loadAssets()
 }
-Ammo().then(() => {
-	initWorld()
-});
+
+
+// 3d end
+
+export { _game3d }
